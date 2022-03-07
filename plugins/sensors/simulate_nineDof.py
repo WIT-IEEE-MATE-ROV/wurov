@@ -23,32 +23,37 @@ import rospy
 import numpy as np
 from wurov.msg import ninedof
 
+
 class simulate_nineDof:
     def __init__(self):
         rospy.init_node('simulate_nineDof', anonymous=True)
 
-        self.nineDof_current_pub = rospy.Publisher('ninedof_values', ninedof, queue_size=3)
-        rate = rospy.Rate(1)
+        self.nineDof_current_pub = rospy.Publisher(
+            'ninedof_values', ninedof, queue_size=3)
 
-        while not rospy.is_shutdown():
-            self.publisher()
-            rate.sleep()
+        rospy.Timer(rospy.Duration(0.1), self.publisher)
 
-    def publisher(self):
+        rospy.spin()
+
+    def publisher(self, data):
         sendval_ninedof = ninedof()
         # While this node is still running, keep getting sensor values
         # In this case, it's simulated, so we're making up values
         # In your case, replace this block with however you're getting values
         # A real sensor is likley providing accelerometer, gyroscope, and magnetometer values
         # Combine them to produce more accure roll/pitch/yaw/x/y/z values
-        sendval_ninedof.orientation.roll   = np.random.normal()
-        sendval_ninedof.orientation.pitch  = np.random.normal()
-        sendval_ninedof.orientation.yaw    = np.random.normal()
-        sendval_ninedof.translation.x      = np.random.normal()
-        sendval_ninedof.translation.y      = np.random.normal()
-        sendval_ninedof.translation.z      = np.random.normal()
+        sendval_ninedof.orientation.roll = np.random.normal()
+        sendval_ninedof.orientation.pitch = np.random.normal()
+        sendval_ninedof.orientation.yaw = np.random.normal()
+        sendval_ninedof.translation.x = np.random.normal()
+        sendval_ninedof.translation.y = np.random.normal()
+        sendval_ninedof.translation.z = np.random.normal()
+        sendval_ninedof.magnetometer.x = np.random.normal()
+        sendval_ninedof.magnetometer.y = np.random.normal()
+        sendval_ninedof.magnetometer.z = np.random.normal()
 
         self.nineDof_current_pub.publish(sendval_ninedof)
+
 
 if __name__ == '__main__':
     simulate_nineDof()
