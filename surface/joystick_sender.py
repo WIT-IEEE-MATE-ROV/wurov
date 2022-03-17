@@ -29,7 +29,7 @@ import socket
 from wurov.msg import surface_command, io_request
 import time
 
-class imu_data:
+class joystick_sender:
     def __init__(self):
         self.publisher = rospy.Publisher('surface_command', surface_command, queue_size=3)
         rospy.init_node('joystick_sender_'+socket.gethostname(), anonymous=False)  # Be effectively anonymous by naming the node after the hostname
@@ -65,15 +65,12 @@ class imu_data:
         # roslaunch/rosrun executes this from the wrong directory, preventing us from calling the config import.
         # By updating our python path via sys, we're able to tell it where to find this stuff.
         # TODO: Make this conditional on a command line parameter.
-        rospkg = rospkg.RosPack()
-        sys.path.append(rospkg.get_path('wurov'))
-        import config
 
         # Now that we're not using the rate to slow down our joystick connection, let's bring it to something we'll use.
-        rospy.Timer(rospy.Rate(10), self.update)
+        rospy.Timer(rospy.Duration(0.1), self.update)
         rospy.spin()
 
-    def update(self):
+    def update(self, data):
             lastmsg = surface_command()
 
             pygame.event.get()
@@ -87,8 +84,8 @@ class imu_data:
             self.msg.desired_trajectory.translation.z = -1 * lever_axis # Flipped: forward is negative, that's dumb
             self.msg.desired_trajectory.orientation.yaw = -1 * twist_axis
             
-            msg = self.config.simulate_peripherals.handle_peripherals(self.joystick, msg)
-            print(msg)
+            msg = config.simulate_peripherals.handle_peripherals(self.joystick, self.msg)
+            print(self.msg)
             if self.different_msg(lastmsg, msg):
                 self.publisher.publish(msg)
                 lastmsg = msg
@@ -145,4 +142,7 @@ class imu_data:
 
 
 if __name__ == '__main__':
-    imu_data()
+    rospkg = rospkg.RosPack()
+    sys.path.append(rospkg.get_path('wurov'))
+    import config
+    joystick_sender()
