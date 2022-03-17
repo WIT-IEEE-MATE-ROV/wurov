@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -26,8 +26,8 @@ import pygame
 import sys
 import argparse
 import socket
-from auv.msg import surface_command, io_request
-
+from wurov.msg import surface_command, io_request
+import time
 
 try:
     publisher = rospy.Publisher('surface_command', surface_command, queue_size=3)
@@ -91,21 +91,17 @@ def different_msg(msg1, msg2):
 if __name__ == '__main__':
     joystick = None
 
-    # Set up Pygame to run headlesslu
-    os.environ["SDL_VIDEODRIVER"] = "dummy"
-    pygame.display.set_mode((1, 1))
-
     # We'll use this to try not to connect to the joystick too quickly.
     rate = rospy.Rate(1)
 
     os.environ["SDL_VIDEODRIVER"] = "dummy"
-    pygame.display.set_mode((1, 1))
+    pygame.display.init()
 
     try:
         pygame.joystick.init()
         while pygame.joystick.get_count() == 0:
             rospy.logerr("No joystick connected!")
-            pygame.joystick.quit()
+            #pygame.joystick.quit()
             pygame.joystick.init()
             rate.sleep()
         rospy.loginfo("Found a joystick to use.")
@@ -125,7 +121,7 @@ if __name__ == '__main__':
     # By updating our python path via sys, we're able to tell it where to find this stuff.
     # TODO: Make this conditional on a command line parameter.
     rospkg = rospkg.RosPack()
-    sys.path.append(rospkg.get_path('auv'))
+    sys.path.append(rospkg.get_path('wurov'))
     import config
 
     # Now that we're not using the rate to slow down our joystick connection, let's bring it to something we'll use.
@@ -138,14 +134,14 @@ if __name__ == '__main__':
             vertical_axis = joystick.get_axis(1)  # Vertical: -1 is full forward, 1 is full back
             twist_axis = joystick.get_axis(2)  # Twist: -1 is full counter-clockwise, 1 is clockwise
             lever_axis = joystick.get_axis(3)  # Lever: 1 is full down, -1 is full up
-
             msg = surface_command()
             msg.desired_trajectory.translation.x = -1 * horizontal_axis
             msg.desired_trajectory.translation.y = vertical_axis  
             msg.desired_trajectory.translation.z = -1 * lever_axis # Flipped: forward is negative, that's dumb
             msg.desired_trajectory.orientation.yaw = -1 * twist_axis
-
+            
             msg = config.simulate_peripherals.handle_peripherals(joystick, msg)
+            print(msg)
             if different_msg(lastmsg, msg):
                 publisher.publish(msg)
                 lastmsg = msg

@@ -1,8 +1,0 @@
-catkin_make
-
-source ~/catkin_ws/devel/setup.zsh
-
-roscore
-rosrun wurov simulate_nineDof.py 
-rosrun wurov kalman.py
-rostopic echo ninedof_filtered
