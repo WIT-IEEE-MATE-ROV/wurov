@@ -1,1 +1,1 @@
-import simulate_peripherals
+from . import simulate_peripherals

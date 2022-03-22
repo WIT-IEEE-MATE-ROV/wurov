@@ -48,7 +48,9 @@ class joystick_sender:
                 rospy.logerr("No joystick connected!")
                 #pygame.joystick.quit()
                 pygame.joystick.init()
-                rate.sleep()
+        rospkg = rospkg.RosPack()
+        sys.path.append(rospkg.get_path('wurov'))
+        import config                rate.sleep()
             rospy.loginfo("Found a joystick to use.")
             pygame.init()
             self.joystick = pygame.joystick.Joystick(0)
@@ -85,6 +87,7 @@ class joystick_sender:
             self.msg.desired_trajectory.orientation.yaw = -1 * twist_axis
             
             msg = config.simulate_peripherals.handle_peripherals(self.joystick, self.msg)
+            print(self.msg)
             if self.different_msg(lastmsg, msg):
                 self.publisher.publish(msg)
                 lastmsg = msg

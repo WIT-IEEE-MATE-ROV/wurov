@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -19,7 +19,7 @@
 
 """
 
-from auv.msg import io_request, trajectory
+from wurov.msg import io_request, trajectory
 
 already_sent_zero = True  # Set to true so that we aren't trying to set anything to zero on startup
 last_sent = ""
