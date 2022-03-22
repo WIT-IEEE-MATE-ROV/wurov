@@ -6,3 +6,5 @@ roscore
 rosrun wurov simulate_nineDof.py 
 rosrun wurov kalman.py
 rostopic echo ninedof_filtered
+
+export ROS_MASTER_URI=http://172.20.70.174:11311

@@ -37,7 +37,9 @@ def callback_ninedof(data):
     history.append(data)
     if history.__len__() > 5:
         del history[0]
-        kalman(history)
+        msg = kalman(history)
+        global Publisher
+        Publisher.publish(msg)
 
 
 def kalman(measurements):
@@ -71,8 +73,9 @@ def kalman(measurements):
     msg.magnetometer.y = smoothed_magnetometer_means[4][1]
     msg.magnetometer.z = smoothed_magnetometer_means[4][2]
 
-    global Publisher
-    Publisher.publish(msg)
+    return msg
+
+
 
 
 if __name__ == '__main__':
