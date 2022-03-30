@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -22,9 +22,10 @@
 import rospy
 import argparse
 import time
-from auv.msg import thruster_sensor, thrustermove, arbitrary_pca_commands
+from wurov.msg import thruster_sensor, thrustermove, arbitrary_pca_commands
 from threading import Thread
-
+from board import SCL, SDA
+import busio
 # The thruster_dictionary takes sensible thruster names and turns them into PCA channels.
 # We default to -1 as a flag value.
 thruster_dictionary = {
@@ -47,13 +48,14 @@ PCA_FREQ_VAL = 400
 PCA_CONTROL_LOCK = False
 
 try:
-    import Adafruit_PCA9685 as PCA
+    from adafruit_pca9685 import PCA9685
 except:
     rospy.logerr("Failed to import Adafruit PCA library.")
 
 pca = None
 try:
-    pca = PCA.PCA9685()
+    i2c_bus = busio.I2C(SCL, SDA)
+    pca = PCA9685(i2c_bus)
 except:
     rospy.logerr("Failed to initialize PCA.")
 
@@ -90,9 +92,9 @@ def stop_thrusters():
                 rospy.logdebug("Did not move due to no channel specification: " + thruster)
             else:
                 rospy.logdebug(thruster + " " + str(thruster_dictionary[thruster]))
-                pca.set_pwm(thruster_dictionary[thruster], 0, scale(.5))  # Stop moving
+                pca.channels[thruster_dictionary[thruster]].duty_cycle = scale(.5)  # Stop moving
                 time.sleep(.5)  # If you go too fast between IO requests it can throw an error.
-                pca.set_pwm(thruster_dictionary[thruster], 0, 0)  # Kill the channel
+                pca.channels[thruster_dictionary[thruster]].duty_cycle =  0  # Kill the channel
                 time.sleep(.5)
         except Exception as e:
             rospy.logerr(
@@ -119,7 +121,7 @@ def init_thrusters(init_sequence):
                 rospy.logdebug(thruster + " " + str(thruster_dictionary[thruster]))
                 for point in init_sequence:
                     persistent_pca(thruster_dictionary[thruster], scale(point))
-                    time.sleep(.5)
+                    time.sleep(1)
                 persistent_pca(thruster_dictionary[thruster], scale(0.5))
                 time.sleep(0.25)  # Make sure we're not spinning anymore
         except Exception as e:
@@ -174,7 +176,7 @@ def move_callback(data):
             else:
                 rospy.logdebug(
                     thruster + " " + str(thruster_dictionary[thruster]) + " " + str(thruster_values[thruster]))
-                pca.set_pwm(thruster_dictionary[thruster], 0, scale(thruster_values[thruster]))
+                pca.channels[thruster_dictionary[thruster]].duty_cycle = scale(thruster_values[thruster])
         except Exception as e:
             # It's possible for the rate of IO requests to be such that the PCA freaks out
             # because we're a bit too quick. We'll catch them and move on, it'll be OK.
@@ -212,7 +214,7 @@ def persistent_pca(channel, pwm):
             lock_pca_control()
             rospy.logdebug("[persistent_pca] Setting PCA channel " + str(channel) +
                            " to " + str(pwm) + " (attempt #" + str(attempt_count) + ")")
-            pca.set_pwm(channel, 0, pwm)
+            pca.channels[channel].duty_cycle = pwm
 
             # If we got here, the PCA didn't freak out. It'll do that sometimes if we request things too back-to-back.
             keep_trying = False
@@ -330,7 +332,7 @@ def listener(arguments):
         pass  # skip the wait, go right to initialization
     else:
         # Loop until we see surface_command being published to
-        while ['/surface_command', 'auv/surface_command'] not in rospy.get_published_topics():
+        while ['/surface_command', 'wurov/surface_command'] not in rospy.get_published_topics():
             rospy.loginfo("'surface_command' is still not being published. We'll keep waiting until it's available.")
             time.sleep(2)
 
@@ -411,7 +413,7 @@ if __name__ == '__main__':
     if pca is None:
         rospy.logwarn("[simulated PCA]: Setting frequency.")
     elif args.frequency is not None:
-        pca.set_pwm_freq(args.frequency)
+        pca.frequency = args.frequency
 
     if MIN_PCA_INT_VAL <= MAX_PCA_INT_VAL:
         rospy.logerr("Your max PCA value <= your min PCA value. Swapping, but you've configured stuff wrong so it'll "
