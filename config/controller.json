@@ -1,0 +1,18 @@
+{
+    "Xbox": [
+        {
+            "killThrusters":6,
+            "unkillThrusters":7,
+            "safetyButton":0,
+            "boostMode":1
+        }
+    ],
+    "Logitech": [
+        {
+            "killThrusters":6,
+            "unkillThrusters":7,
+            "safetyButton":0,
+            "boostMode":1
+        }
+    ]
+}
