@@ -2,7 +2,7 @@
 Our system is broken down into a bunch of straightforward parts that handle individual tasks, and publishes them for the next part of the toolchain. The nice thing about this is that you, the user, can also listen to those messages to get up-to-date sensor information, for example. In addition, we've put together nodes you can hook into to send commands to the rest of the system.
 
 # Nodes of Interest
-## ninedof
+## imu_9d
 The nine degree of freedom node publishes content stemming from the nine degree of freedom sensor.
 
 TODO @Ryley

@@ -73,15 +73,15 @@ represent topics (publisher pointing to subscriber, with the text being the topi
 
 We'll work from left to right to show what each of these nodes are doing and why they're necessary. 
 
-##### /ninedof
-`ninedof` is the Nine Degrees of Freedom sensor. Examples include the [LSM9DS1](https://www.adafruit.com/product/3387)
+##### /imu_9d
+`imu_9d` is the Nine Degrees of Freedom sensor. Examples include the [LSM9DS1](https://www.adafruit.com/product/3387)
 or the [NXP](https://www.adafruit.com/product/3463), both of which provide magnetometer, gyroscope, and accelerometer
 data. This data is useful for things like control loops or gathering position data.
 
-`/ninedof`, in this case, is `simulate_nineDof.py` found within `plugins/sensors`. It's a plugin because it deals
+`/imu_9d`, in this case, is `simulate_imu_9d.py` found within `plugins/sensors`. It's a plugin because it deals
 directly with hardware (in this case simulated), so it may need to be swapped out for another sensor node. To make a 
-new `ninedof` node, the easiest way is to make a copy of the `simulate_nineDof.py` file and make it read your sensor
-instead of generating random values. The important part is that it publishes the right message to `/ninedof_values`.
+new `imu_9d` node, the easiest way is to make a copy of the `simulate_imu_9d.py` file and make it read your sensor
+instead of generating random values. The important part is that it publishes the right message to `/imu_9d_values`.
 
 ##### /filtering
 So you've got your position/orientation sensor values. However, the nature of hardware is that it's not going to be
@@ -91,8 +91,8 @@ that has been implemented is a [Kalman filter](https://en.wikipedia.org/wiki/Kal
 node, it could be swapped out for something like a [Madgewick filter](https://stackoverflow.com/questions/23599256/implementing-madgwick-imu-algorithm).
 
 This is a part of the core because it can be used regardless of what hardware is being used. It can be found
- in `core/filtering/kalman.py`. All a filter needs to do is take in `/ninedof_values` and spit out processed values to
- `/ninedof_filtered`. 
+ in `core/filtering/kalman.py`. All a filter needs to do is take in `/imu_9d_values` and spit out processed values to
+ `/imu_9d_filtered`. 
  
 ##### /command_receiver
 The command receiver receives commands that the operator would like the ROV to run. These commands will typically come 
@@ -165,14 +165,14 @@ again use the `simulate.launch` file. The simplified version looks like this:
 ```
 <launch>
     <node name="thruster_control" pkg="auv" type="simulate_thruster_control.py" args="" />
-    <node name="ninedof" pkg="auv" type="simulate_nineDof.py" />
+    <node name="imu_9d" pkg="auv" type="simulate_imu_9d.py" />
 
     <include file="$(find auv)/launch/core.launch" />
 </launch>
 ```
 
 In this launch file, we're running two ROS nodes: our `thruster_control` node (which is actually 
-`simulate_thruster_control.py`), and `ninedof` (which is actually `simulate_nineDof.py`). These are both simulation
+`simulate_thruster_control.py`), and `imu_9d` (which is actually `simulate_imu_9d.py`). These are both simulation
 nodes, but if you wanted to make a new setup that uses real hardware, you could just change out the `type=` to a node
 that is already in this repository and meets your needs. If it doesn't exist, you can make copies of whatever file 
 you need and modify it to meet your specific hardware needs. 
