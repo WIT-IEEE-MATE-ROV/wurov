@@ -1,0 +1,31 @@
+{
+    "Controllers": {
+        "Xbox": {
+            "killThrusters": 6,
+            "unkillThrusters": 7,
+            "safetyButton": 0,
+            "boostMode": 1,
+            "translationX_axis":0,
+            "translationY_axis":1,
+            "translationZ_axis":3,
+            "depth_axis": {
+                "inputCount": 2,
+                "inputOne_Axis": 2,
+                "inputTwo_Axis": 5
+            }
+        },
+        "Logitech": {
+            "killThrusters": 6,
+            "unkillThrusters": 7,
+            "safetyButton": 0,
+            "boostMode": 1,
+            "translationX_axis":0,
+            "translationY_axis":1,
+            "translationZ_axis":2,
+            "depth_axis": {
+                "inputCount": 1,
+                "inputOne_Axis": 2
+            }
+        }
+    }
+}

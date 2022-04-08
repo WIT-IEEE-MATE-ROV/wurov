@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -22,7 +22,7 @@
 import rospy
 import pykalman
 import numpy as np
-from auv.msg import ninedof
+from wurov.msg import ninedof
 
 """
 TODO: This is totally untested, and I really doubt it works as-is. Feel free to add/modify/delete/replace as necessary
@@ -67,9 +67,9 @@ def kalman(measurements):
     msg.orientation.pitch = smoothed_orientation_means[4][1]
     msg.orientation.yaw = smoothed_orientation_means[4][2]
 
-    msg.magnetometer.roll = smoothed_magnetometer_means[4][0]
-    msg.magnetometer.pitch = smoothed_magnetometer_means[4][1]
-    msg.magnetometer.yaw = smoothed_magnetometer_means[4][2]
+    msg.magnetometer.x = smoothed_magnetometer_means[4][0]
+    msg.magnetometer.y = smoothed_magnetometer_means[4][1]
+    msg.magnetometer.z = smoothed_magnetometer_means[4][2]
 
     global Publisher
     Publisher.publish(msg)

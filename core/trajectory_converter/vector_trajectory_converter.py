@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -22,7 +22,7 @@
 import rospy
 import argparse
 from math import floor
-from auv.msg import thrustermove, trajectory
+from wurov.msg import thrustermove, trajectory
 
 ESC_IS_INIT = False
 Publisher = rospy.Publisher('thruster_commands', thrustermove, queue_size=3)

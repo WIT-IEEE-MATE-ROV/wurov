@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -20,7 +20,7 @@
 """
 
 import rospy
-from auv.msg import trajectory, io_request, surface_command
+from wurov.msg import trajectory, io_request, surface_command
 
 trajectory_requester = rospy.Publisher('trajectory_request', trajectory, queue_size=3)
 io_requester = rospy.Publisher('io_request', io_request, queue_size=3)

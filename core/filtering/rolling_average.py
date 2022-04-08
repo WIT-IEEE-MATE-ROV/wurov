@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -20,7 +20,7 @@
 """
 
 import rospy
-from auv.msg import ninedof
+from wurov.msg import ninedof
 
 Publisher = rospy.Publisher('ninedof_filtered', ninedof, queue_size=3)
 history = []

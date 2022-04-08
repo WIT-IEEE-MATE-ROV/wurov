@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -20,7 +20,7 @@
 """
 
 import rospy
-from auv.msg import io_request, arbitrary_pca_commands
+from wurov.msg import io_request, arbitrary_pca_commands
 
 publisher = rospy.Publisher('arbitrary_pca_commands', arbitrary_pca_commands, queue_size=3)
 
