@@ -46,10 +46,9 @@ class joystick_sender:
 
         rp = rospkg.RosPack()
         package_path = rp.get_path('wurov')
-        controllerConfPath = package_path + "/config/controller.json"
+        controllerConfPath = os.path.join(package_path, "/config/controller.json")
 
-        with open(controllerConfPath, 'r') as conf:
-            self.controllerConfig = json.load(conf)["Controllers"][self.args.config_name]
+        self.controllerConfig = json.loads(controllerConfPath)["Controllers"][self.args.config_name]
 
         self.already_sent_zero = True  # Set to true so that we aren't trying to set anything to zero on startup
         self.last_sent = ""
@@ -89,30 +88,14 @@ class joystick_sender:
             lastmsg = surface_command()
 
             pygame.event.get()
-            horizontal_axis = self.joystick.get_axis(self.controllerConfig["translationX_axis"])  # Horizontal: -1 is full left, 1 is full right
-            vertical_axis = self.joystick.get_axis(self.controllerConfig["translationY_axis"])  # Vertical: -1 is full forward, 1 is full back
-            twist_axis = self.joystick.get_axis(self.controllerConfig["translationZ_axis"])  # Twist: -1 is full counter-clockwise, 1 is clockwise
-            
-            if self.controllerConfig["depth_axis"]["inputCount"] == 1:
-                  depth_axis = self.joystick.get_axis(self.controllerConfig["depth_axis"]["inputOne_Axis"])  # Lever: 1 is full down, -1 is full up
-            elif self.controllerConfig["depth_axis"]["inputCount"] == 2:
-                depthAxisOne = -1 * self.joystick.get_axis((self.controllerConfig["depth_axis"]["inputOne_Axis"]))
-                depthAxisTwo = self.joystick.get_axis((self.controllerConfig["depth_axis"]["inputTwo_Axis"]))
-
-                if depthAxisOne > 0:
-                    depthAxisOne = 0
-                if depthAxisTwo < 0:
-                    depthAxisTwo = 0
-
-                depth_axis = depthAxisOne + (depthAxisTwo)
-            else:
-                rospy.loginfo("Depth config set wrong")
-                quit()
-
+            horizontal_axis = self.joystick.get_axis(0)  # Horizontal: -1 is full left, 1 is full right
+            vertical_axis = self.joystick.get_axis(1)  # Vertical: -1 is full forward, 1 is full back
+            twist_axis = self.joystick.get_axis(2)  # Twist: -1 is full counter-clockwise, 1 is clockwise
+            lever_axis = self.joystick.get_axis(3)  # Lever: 1 is full down, -1 is full up
             self.msg = surface_command()
             self.msg.desired_trajectory.translation.x = -1 * horizontal_axis
             self.msg.desired_trajectory.translation.y = vertical_axis  
-            self.msg.desired_trajectory.translation.z = depth_axis # Flipped: forward is negative, that's dumb
+            self.msg.desired_trajectory.translation.z = -1 * lever_axis # Flipped: forward is negative, that's dumb
             self.msg.desired_trajectory.orientation.yaw = -1 * twist_axis
             
             msg = self.handle_peripherals(self.joystick, self.msg)
@@ -225,7 +208,7 @@ class joystick_sender:
             msg.desired_trajectory.orientation.pitch = msg.desired_trajectory.orientation.pitch / 2
             msg.desired_trajectory.orientation.yaw = msg.desired_trajectory.orientation.yaw / 2
 
-        if joystick.get_button(self.controllerConfig["killThrusters"]):  # Kill thrusters button
+        if joystick.get_button(self.controllerConfig["killThusters"]):  # Kill thrusters button
             if not self.thruster_already_killed:
                 io_request_ = io_request()
                 io_request_.executor = "kill_thruster"
@@ -246,7 +229,7 @@ class joystick_sender:
         elif self.thruster_already_killed:  # Make sure the button is released before we send another stream of kill stuff
             self.thruster_already_killed = False
 
-        if joystick.get_button(self.controllerConfig["unkillThrusters"]):  # Un-kill thrusters button
+        if joystick.get_button(self.controllerConfig["unkillThusters"]):  # Un-kill thrusters button
             if not self.thruster_already_unkilled:
                 io_request_ = io_request()
                 io_request_.executor = "unkill_thruster"
