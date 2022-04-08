@@ -60,7 +60,6 @@ add_message_files(
   thrustermove.msg
   trajectory.msg
   translation.msg
-  magnetometer.msg
 )
 
 ## Generate services in the 'srv' folder

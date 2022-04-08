@@ -3,4 +3,3 @@ Header header
 
 translation translation   # The accelerometer, as a translation
 orientation orientation   # The gyroscope, as an orientation
-magnetometer magnetometer # The magnetometer
