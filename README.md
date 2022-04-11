@@ -78,7 +78,7 @@ We'll work from left to right to show what each of these nodes are doing and why
 or the [NXP](https://www.adafruit.com/product/3463), both of which provide magnetometer, gyroscope, and accelerometer
 data. This data is useful for things like control loops or gathering position data.
 
-`/imu/data_raw`, in this case, is `simulate_imu/data.py` found within `plugins/sensors`. It's a plugin because it deals
+`/imu/data_raw`, in this case, is `simulate_imu_data.py` found within `plugins/sensors`. It's a plugin because it deals
 directly with hardware (in this case simulated), so it may need to be swapped out for another sensor node. To make a 
 new `imu/data_raw` node, the easiest way is to make a copy of the `simulate_imu_data.py` file and make it read your sensor
 instead of generating random values. The important part is that it publishes the right message to `/imu/data`.
@@ -91,8 +91,8 @@ that has been implemented is a [Kalman filter](https://en.wikipedia.org/wiki/Kal
 node, it could be swapped out for something like a [Madgewick filter](https://stackoverflow.com/questions/23599256/implementing-madgwick-imu-algorithm).
 
 This is a part of the core because it can be used regardless of what hardware is being used. It can be found
- in `core/filtering/kalman.py`. All a filter needs to do is take in `/imu/data` and spit out processed values to
- `/imu/data_filtered`. 
+ in `core/filtering/kalman.py`. All a filter needs to do is take in `/imu/data_raw` and spit out processed values to
+ `/imu/data`. 
  
 ##### /command_receiver
 The command receiver receives commands that the operator would like the ROV to run. These commands will typically come 
@@ -165,14 +165,14 @@ again use the `simulate.launch` file. The simplified version looks like this:
 ```
 <launch>
     <node name="thruster_control" pkg="auv" type="simulate_thruster_control.py" args="" />
-    <node name="imu/data_raw" pkg="auv" type="simulate_imu/data.py" />
+    <node name="imu/data_raw" pkg="auv" type="simulate_imu_data.py" />
 
     <include file="$(find auv)/launch/core.launch" />
 </launch>
 ```
 
 In this launch file, we're running two ROS nodes: our `thruster_control` node (which is actually 
-`simulate_thruster_control.py`), and `imu/data_raw` (which is actually `simulate_imu/data.py`). These are both simulation
+`simulate_thruster_control.py`), and `imu/data_raw` (which is actually `simulate_imu_data.py`). These are both simulation
 nodes, but if you wanted to make a new setup that uses real hardware, you could just change out the `type=` to a node
 that is already in this repository and meets your needs. If it doesn't exist, you can make copies of whatever file 
 you need and modify it to meet your specific hardware needs. 

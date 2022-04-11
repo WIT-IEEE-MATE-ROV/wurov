@@ -3,7 +3,7 @@
     <node name="thruster_control" pkg="auv" type="simulate_thruster_control.py" args="" />
 
     <!-- Run the node to get 9-DoF values. It's simulated by producing random values. -->
-    <node name="imu/data_raw" pkg="auv" type="simulate_imu/data.py" />
+    <node name="imu/data_raw" pkg="auv" type="simulate_imu_data.py" />
 
     <!--
     An example of how to add additional plugins to make a more complex system. 'manipulator'
