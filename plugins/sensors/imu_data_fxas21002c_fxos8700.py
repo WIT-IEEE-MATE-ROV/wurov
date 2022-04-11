@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import math
-
 import board;
 import busio;
 import adafruit_fxas21002c;
 import adafruit_fxos8700;
 import rospy
-from sensor_msgs.msg import Imu
-from sensor_msgs.msg import MagneticField
+from sensor_msgs.msg import Imu, MagneticField
 from tf.transformations import quaternion_from_euler
 
 

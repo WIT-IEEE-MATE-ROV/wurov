@@ -20,7 +20,7 @@
 """
 
 import rospy
-from sensor_msgs import Imu
+from sensor_msgs.msg import Imu
 
 
 class RollingAvg:
@@ -31,7 +31,7 @@ class RollingAvg:
 
 
     # Filter out noise using a rolling average.
-    def rolling_avg(self, imu):
+    def rolling_avg(self, imu: Imu):
         self.history.append(imu)
 
         if self.history.__len__() > self.history_max_length:
