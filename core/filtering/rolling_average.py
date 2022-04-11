@@ -20,49 +20,52 @@
 """
 
 import rospy
-from wurov.msg import ninedof
-
-Publisher = rospy.Publisher('ninedof_filtered', ninedof, queue_size=3)
-history = []
-history_max_length = 10
+from sensor_msgs import Imu
 
 
-# Filter out noise using a rolling average.
-def callback(data):
-    if history.__len__() > history_max_length:
-        translation = data.translation
-        orientation = data.orientation
+class RollingAvg:
+    def __init__(self, pub_topic) -> None:
+        self.imu_pub = rospy.Publisher(pub_topic, Imu, queue_size=3)
+        self.history = []
+        self.history_max_length = 10
 
-        for point in history:
-            translation.x += point.translation.x
-            translation.y += point.translation.y
-            translation.z += point.translation.z
 
-            orientation.roll += point.orientation.roll
-            orientation.pitch += point.orientation.pitch
-            orientation.yaw += point.orientation.yaw
+    # Filter out noise using a rolling average.
+    def rolling_avg(self, imu):
+        self.history.append(imu)
 
-        translation.x /= history.__len__()
-        translation.y /= history.__len__()
-        translation.z /= history.__len__()
-        orientation.roll /= history.__len__()
-        orientation.pitch /= history.__len__()
-        orientation.yaw /= history.__len__()
+        if self.history.__len__() > self.history_max_length:
+            del self.history[0]
 
-        msg = ninedof()
-        msg.translation = translation
-        msg.orientation = orientation
-        Publisher.publish(msg)
+            imu.linear_acceleration.x = sum([point.linear_acceleration.x for point in self.history])
+            imu.linear_acceleration.y = sum([point.linear_acceleration.y for point in self.history])
+            imu.linear_acceleration.z = sum([point.linear_acceleration.z for point in self.history])
+            imu.angular_velocity.x = sum([point.angular_velocity.x for point in self.history])
+            imu.angular_velocity.y = sum([point.angular_velocity.y for point in self.history])
+            imu.angular_velocity.z = sum([point.angular_velocity.z for point in self.history])
+            imu.orientation.x = sum([point.orientation.x for point in self.history])
+            imu.orientation.y = sum([point.orientation.y for point in self.history])
+            imu.orientation.z = sum([point.orientation.z for point in self.history])
+            imu.orientation.w = sum([point.orientation.w for point in self.history])
 
-        # The 'rolling' part of the average: get rid of the oldest data point before adding another data point
-        del history[0]
-    # This one's not in the if statement because we always want to add data,
-    # we only want to remove data if there's enough to allow that
-    history.append(data)
+
+            imu.linear_acceleration.x /= self.history.__len__()
+            imu.linear_acceleration.y /= self.history.__len__()
+            imu.linear_acceleration.z /= self.history.__len__()
+            imu.angular_velocity.x /= self.history.__len__()
+            imu.angular_velocity.y /= self.history.__len__()
+            imu.angular_velocity.z /= self.history.__len__()
+            imu.orientation.x /= self.history.__len__()
+            imu.orientation.y /= self.history.__len__()
+            imu.orientation.z /= self.history.__len__()
+            imu.orientation.w /= self.history.__len__()
+
+            self.imu_pub.publish(imu)
 
 
 if __name__ == '__main__':
     rospy.init_node('filter', anonymous=True)
-    rospy.Subscriber('ninedof_values', ninedof, callback)
+    r_a = RollingAvg('imu/data')    # Publish to imu/data after filtering
+    imu_sub = rospy.Subscriber('imu/data_raw', Imu, r_a.rolling_avg)
 
     rospy.spin()
