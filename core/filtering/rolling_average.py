@@ -27,27 +27,24 @@ class RollingAvg:
     def __init__(self, pub_topic) -> None:
         self.imu_pub = rospy.Publisher(pub_topic, Imu, queue_size=3)
         self.history = []
-        self.history_max_length = 10
+        self.history_max_length = 3
 
 
     # Filter out noise using a rolling average.
     def rolling_avg(self, imu: Imu):
-        self.history.append(imu)
 
-        if self.history.__len__() > self.history_max_length:
-            del self.history[0]
-
-            imu.linear_acceleration.x = sum([point.linear_acceleration.x for point in self.history])
-            imu.linear_acceleration.y = sum([point.linear_acceleration.y for point in self.history])
-            imu.linear_acceleration.z = sum([point.linear_acceleration.z for point in self.history])
-            imu.angular_velocity.x = sum([point.angular_velocity.x for point in self.history])
-            imu.angular_velocity.y = sum([point.angular_velocity.y for point in self.history])
-            imu.angular_velocity.z = sum([point.angular_velocity.z for point in self.history])
-            imu.orientation.x = sum([point.orientation.x for point in self.history])
-            imu.orientation.y = sum([point.orientation.y for point in self.history])
-            imu.orientation.z = sum([point.orientation.z for point in self.history])
-            imu.orientation.w = sum([point.orientation.w for point in self.history])
-
+        if self.history.__len__() >= self.history_max_length:
+            for point in self.history:
+                imu.linear_acceleration.x +=point.linear_acceleration.x
+                imu.linear_acceleration.y +=point.linear_acceleration.y
+                imu.linear_acceleration.z +=point.linear_acceleration.z
+                imu.angular_velocity.x +=point.angular_velocity.x
+                imu.angular_velocity.y +=point.angular_velocity.y
+                imu.angular_velocity.z +=point.angular_velocity.z
+                imu.orientation.x +=point.orientation.x
+                imu.orientation.y +=point.orientation.y
+                imu.orientation.z +=point.orientation.z
+                imu.orientation.w +=point.orientation.w
 
             imu.linear_acceleration.x /= self.history.__len__()
             imu.linear_acceleration.y /= self.history.__len__()
@@ -62,10 +59,13 @@ class RollingAvg:
 
             self.imu_pub.publish(imu)
 
+            del self.history[0]
+
+        self.history.append(imu)
+
 
 if __name__ == '__main__':
-    rospy.init_node('filter', anonymous=True)
-    r_a = RollingAvg('imu/data')    # Publish to imu/data after filtering
+    rospy.init_node('rolling_avg', anonymous=True)
+    r_a = RollingAvg('imu/data')    # Publish filtered imu to imu/data
     imu_sub = rospy.Subscriber('imu/data_raw', Imu, r_a.rolling_avg)
-
     rospy.spin()
