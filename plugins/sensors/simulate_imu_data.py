@@ -26,6 +26,15 @@ from sensor_msgs.msg import Imu, MagneticField
 
 class simulate_imu_data:
     def __init__(self):
+        self.imu_msg = Imu()
+        self.mag_msg = MagneticField()
+
+         # zeros matrix for unknow covariance according to sensor_msgs/Imu doc
+        zeros_mat = [0]*9
+        self.imu_msg.orientation_covariance = zeros_mat
+        self.imu_msg.angular_velocity_covariance = zeros_mat
+        self.imu_msg.linear_acceleration_covariance = zeros_mat
+        
         rospy.init_node('simulate_imu_9d', anonymous=True)
 
         # imu_filter_madgwick's required topics
@@ -37,43 +46,36 @@ class simulate_imu_data:
         rospy.spin()
 
     def publisher(self, data):
-        imu_msg = Imu()
-        mag_msg = MagneticField()
-
         # While this node is still running, keep getting sensor values
         # In this case, it's simulated, so we're making up values
         # In your case, replace this block with however you're getting values
         # A real sensor is likley providing accelerometer, gyroscope, and magnetometer values
         # Combine them to produce more accure roll/pitch/yaw/x/y/z values
-        imu_msg.header.stamp = rospy.Time.now()
-        imu_msg.header.frame_id = ''        
+        current_time = rospy.Time.now()
+        self.imu_msg.header.stamp = current_time
+        self.imu_msg.header.stamp = current_time
+        self.imu_msg.header.frame_id = ''
 
-        imu_msg.orientation.x = np.random.normal()
-        imu_msg.orientation.y = np.random.normal()
-        imu_msg.orientation.z = np.random.normal()
-        imu_msg.orientation.w = np.random.normal()
+        # Imu msg
+        self.imu_msg.orientation.x = np.random.normal()
+        self.imu_msg.orientation.y = np.random.normal()
+        self.imu_msg.orientation.z = np.random.normal()
+        self.imu_msg.orientation.w = np.random.normal()
+        self.imu_msg.linear_acceleration.x = np.random.normal()
+        self.imu_msg.linear_acceleration.y = np.random.normal()
+        self.imu_msg.linear_acceleration.z = np.random.normal() 
+        self.imu_msg.angular_velocity.x = np.random.normal()
+        self.imu_msg.angular_velocity.y = np.random.normal()
+        self.imu_msg.angular_velocity.z = np.random.normal()
 
-        imu_msg.linear_acceleration.x = np.random.normal()
-        imu_msg.linear_acceleration.y = np.random.normal()
-        imu_msg.linear_acceleration.z = np.random.normal() 
-
-        imu_msg.angular_velocity.x = np.random.normal()
-        imu_msg.angular_velocity.y = np.random.normal()
-        imu_msg.angular_velocity.z = np.random.normal()
-
-
-        # no initial covariance
-        imu_msg.orientation_covariance[0] = -1
-        imu_msg.angular_velocity_covariance[0] = -1
-        imu_msg.linear_acceleration_covariance[0] = -1
-
-        mag_msg.magnetic_field.x = np.random.normal()
-        mag_msg.magnetic_field.y = np.random.normal()
-        mag_msg.magnetic_field.z = np.random.normal()
+        # Mag msg
+        self.mag_msg.magnetic_field.x = np.random.normal()
+        self.mag_msg.magnetic_field.y = np.random.normal()
+        self.mag_msg.magnetic_field.z = np.random.normal()
 
         # publish msgs
-        self.imu_pub.publish(imu_msg)
-        self.mag_pub.publish(mag_msg)
+        self.imu_pub.publish(self.imu_msg)
+        self.mag_pub.publish(self.mag_msg)
 
 if __name__ == '__main__':
     simulate_imu_data() 
