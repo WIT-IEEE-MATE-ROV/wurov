@@ -1,0 +1,5 @@
+<launch>
+    <rosparam file="$(find wurov)/config/controller.yaml" />
+
+    <node name="joystick_sender" pkg="wurov" type="joystick_sender.py" />
+</launch>

@@ -1,3 +1,0 @@
-<launch>
-    <node name="imu_data" pkg="wurov" type="imu_data.py" />
-</launch>
