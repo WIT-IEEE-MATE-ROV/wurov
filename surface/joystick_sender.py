@@ -39,9 +39,9 @@ class joystick_sender:
         parser.add_argument('--config_name', type=str, help='Set the name of the file we should use as a config (from '
                                                             'within the config directory)')
         self.args = parser.parse_args(rospy.myargv()[1:])
-        namespace = "/Controllers/" + self.args.config_name
-        self.controllerConfig = rospy.get_param(namespace)
+        namespace = f"/Controllers/{self.args.config_name}"
 
+        self.controllerConfig = rospy.get_param(namespace)
 
         self.already_sent_zero = True  # Set to true so that we aren't trying to set anything to zero on startup
         self.last_sent = ""
