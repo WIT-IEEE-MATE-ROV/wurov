@@ -37,9 +37,9 @@ class joystick_sender:
 
         parser = argparse.ArgumentParser("Find a plugged in joystick and send it over /surface_command.")
         parser.add_argument('--config_name', type=str, help='Set the name of the file we should use as a config (from '
-                                                            'within the config directory)')
+                                                            'within the config directory)', required=True)
         self.args = parser.parse_args(rospy.myargv()[1:])
-        namespace = f"/Controllers/{self.args.config_name}"
+        namespace = f"/{rospy.get_name()}/Controllers/{self.args.config_name}"
 
         self.controllerConfig = rospy.get_param(namespace)
 
