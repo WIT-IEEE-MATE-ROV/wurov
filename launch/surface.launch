@@ -1,0 +1,5 @@
+<launch>
+    <node name="joystick_sender" pkg="wurov" type="joystick_sender.py" args="--config_name Xbox">
+        <rosparam file="$(find wurov)/config/controller.yaml" />
+    </node>
+</launch>
