@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="nugv_core">
     
+    <!-- ############################################################################################### -->
     <!-- COLOR -->
-
     <material name="white">
         <color rgba="1 1 1 1" />
     </material>
@@ -19,9 +19,27 @@
         <color rgba="0 0 0 1"/>
     </material>
 
+    <!-- ############################################################################################### -->
+    <!-- NUGV PROPERTIES -->
+    <!-- Unit: Meters -->
+
+    <!-- Chasis -->
+    <xacro:property name="chasis_length" value="0.5" />
+    <xacro:property name="chasis_width" value="0.42" />
+    <xacro:property name="chasis_height" value="0.38" />
+
+    <!-- Thruster -->
+    <xacro:property name="thruster_radius" value="0.05" />
+    <xacro:property name="thruster_length" value="0.05" />
+    
+    
+
+
+    <!-- ############################################################################################### -->
     <!-- BASE LINK -->
     <link name="base_link"/>
 
+    <!-- ############################################################################################### -->
     <!-- CHASSIS LINK -->
     <joint name="chassis_joint" type="fixed">
         <parent link="base_link"/>
@@ -31,77 +49,131 @@
     <link name="chassis">
         <visual>
             <geometry>
-                        <!-- x    y   z   in meters-->
-                <box size="0.5 0.42 0.38"/>
+                        <!--       x                y               z           in meters-->
+                <box size="${chasis_length} ${chasis_width} ${chasis_height}"/>
+            </geometry>
+            <material name="orange"/>
+        </visual>
+    </link>
+
+    <!-- ############################################################################################### -->
+    <!-- FRONT LEFT THRUSTER LINK -->
+    <joint name="thruster_front_left_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="thruster_front_left"/>
+        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 ${pi/4}" />
+        <!-- axis of rotation; in this case, thruster rotates around the Z axis -->
+        <axis xyz="0 0 1"/> 
+    </joint>
+
+    <link name="thruster_front_left">
+        <visual>
+            <geometry>
+                <cylinder radius="${thruster_radius}" length="${thruster_length}"/>
             </geometry>
             <material name="white"/>
         </visual>
     </link>
 
-    <!-- FRONT LEFT THRUSTER LINK -->
-    <joint name="thruster_front_left_joint" type="continuous">
-        <parent link="base_link"/>
-        <child link="thruster_front_left"/>
-        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 0" />
-        <axis xyz="0 0 1"/>
-    </joint>
-
-    <link name="thruster_front_left">
-    </link>
-
+    <!-- ############################################################################################### -->
     <!-- FRONT RIGHT THRUSTER LINK -->
     <joint name="thruster_front_right_joint" type="continuous">
         <parent link="base_link"/>
         <child link="thruster_front_right"/>
-        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 0" />
-        <axis xyz="0 0 1"/>
+        <origin xyz="0.25 -0.21 0" rpy="-${pi/2} 0 -${pi/4}" />
+        <!-- axis of rotation; in this case, thruster rotates around the Z axis -->
+        <axis xyz="0 0 1"/> 
     </joint>
 
     <link name="thruster_front_right">
+        <visual>
+            <geometry>
+                <cylinder radius="${thruster_radius}" length="${thruster_length}"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
     </link>
 
-
+    <!-- ############################################################################################### -->
     <!-- BACK LEFT THRUSTER LINK -->
     <joint name="thruster_back_left_joint" type="continuous">
         <parent link="base_link"/>
         <child link="thruster_back_left"/>
-        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 0" />
+        <origin xyz="-0.25 0.21 0" rpy="-${pi/2} 0 -${pi/4}" />
+        <!-- axis of rotation; in this case, thruster rotates around the Z axis -->
         <axis xyz="0 0 1"/>
     </joint>
 
     <link name="thruster_back_left">
+        <visual>
+            <geometry>
+                <cylinder radius="${thruster_radius}" length="${thruster_length}"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
     </link>
 
+    <!-- ############################################################################################### -->
     <!-- BACK RIGHT THRUSTER LINK -->
     <joint name="thruster_back_right_joint" type="continuous">
         <parent link="base_link"/>
         <child link="thruster_back_right"/>
-        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 0" />
-        <axis xyz="0 0 1"/>
+        <origin xyz="-0.25 -0.21 0" rpy="-${pi/2} 0 ${pi/4}" />
+        <!-- axis of rotation; in this case, thruster rotates around the Z axis -->
+        <axis xyz="0 0 1"/> 
     </joint>
 
     <link name="thruster_back_right">
+        <visual>
+            <geometry>
+                <cylinder radius="${thruster_radius}" length="${thruster_length}"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
     </link>
 
+    <!-- ############################################################################################### -->
     <!-- FRONT DEPTH THRUSTER LINK -->
     <joint name="depth_thruster_front" type="continuous">
         <parent link="base_link"/>
         <child link="depth_thruster_front"/>
+        <origin xyz="0.25 0 0" rpy="${pi} 0 0" />
+        <!-- axis of rotation; in this case, thruster rotates around the Z axis -->
+        <axis xyz="0 0 1"/> 
     </joint>
 
     <link name="depth_thruster_front">
+        <visual>
+            <geometry>
+                <cylinder radius="${thruster_radius}" length="${thruster_length}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
     </link>
 
+    <!-- ############################################################################################### -->
     <!-- BACK DEPTH THRUSTER LINK -->
     <joint name="depth_thruster_back" type="continuous">
         <parent link="base_link"/>
         <child link="depth_thruster_back"/>
+        <origin xyz="-0.25 0 0" rpy="${pi} 0 0" />
+        <!-- axis of rotation; in this case, thruster rotates around the Z axis -->
+        <axis xyz="0 0 1"/> 
     </joint>
 
     <link name="depth_thruster_back">
+        <visual>
+            <geometry>
+                <cylinder radius="${thruster_radius}" length="${thruster_length}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
     </link>
 
+    <!-- ############################################################################################### -->
     <!-- IMU LINK -->
+
+    <!-- ############################################################################################### -->
     <!-- DIGITAL CAMERA LINK -->
 
 
