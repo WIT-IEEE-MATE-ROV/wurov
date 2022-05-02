@@ -80,7 +80,7 @@
     <joint name="thruster_front_right_joint" type="continuous">
         <parent link="base_link"/>
         <child link="thruster_front_right"/>
-        <origin xyz="0.25 -0.21 0" rpy="-${pi/2} 0 -${pi/4}" />
+        <origin xyz="0.25 -0.21 0" rpy="-${pi/2} 0 ${pi*3/4}" />
         <!-- axis of rotation; in this case, thruster rotates around the Z axis -->
         <axis xyz="0 0 1"/> 
     </joint>
@@ -99,7 +99,7 @@
     <joint name="thruster_back_left_joint" type="continuous">
         <parent link="base_link"/>
         <child link="thruster_back_left"/>
-        <origin xyz="-0.25 0.21 0" rpy="-${pi/2} 0 -${pi/4}" />
+        <origin xyz="-0.25 0.21 0" rpy="-${pi/2} 0 ${pi*3/4}" />
         <!-- axis of rotation; in this case, thruster rotates around the Z axis -->
         <axis xyz="0 0 1"/>
     </joint>
