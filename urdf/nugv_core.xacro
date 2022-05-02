@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="nugv_core">
+    
+    <!-- COLOR -->
+
+    <material name="white">
+        <color rgba="1 1 1 1" />
+    </material>
+
+    <material name="orange">
+        <color rgba="1 0.3 0.1 1"/>
+    </material>
+
+    <material name="blue">
+        <color rgba="0.2 0.2 1 1"/>
+    </material>
+
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+
+    <!-- BASE LINK -->
+    <link name="base_link"/>
+
+    <!-- CHASSIS LINK -->
+    <joint name="chassis_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="chassis"/>
+    </joint>
+    
+    <link name="chassis">
+        <visual>
+            <geometry>
+                        <!-- x    y   z   in meters-->
+                <box size="0.5 0.42 0.38"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+    </link>
+
+    <!-- FRONT LEFT THRUSTER LINK -->
+    <joint name="thruster_front_left_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="thruster_front_left"/>
+        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 0" />
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="thruster_front_left">
+    </link>
+
+    <!-- FRONT RIGHT THRUSTER LINK -->
+    <joint name="thruster_front_right_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="thruster_front_right"/>
+        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 0" />
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="thruster_front_right">
+    </link>
+
+
+    <!-- BACK LEFT THRUSTER LINK -->
+    <joint name="thruster_back_left_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="thruster_back_left"/>
+        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 0" />
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="thruster_back_left">
+    </link>
+
+    <!-- BACK RIGHT THRUSTER LINK -->
+    <joint name="thruster_back_right_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="thruster_back_right"/>
+        <origin xyz="0.25 0.21 0" rpy="-${pi/2} 0 0" />
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="thruster_back_right">
+    </link>
+
+    <!-- FRONT DEPTH THRUSTER LINK -->
+    <joint name="depth_thruster_front" type="continuous">
+        <parent link="base_link"/>
+        <child link="depth_thruster_front"/>
+    </joint>
+
+    <link name="depth_thruster_front">
+    </link>
+
+    <!-- BACK DEPTH THRUSTER LINK -->
+    <joint name="depth_thruster_back" type="continuous">
+        <parent link="base_link"/>
+        <child link="depth_thruster_back"/>
+    </joint>
+
+    <link name="depth_thruster_back">
+    </link>
+
+    <!-- IMU LINK -->
+    <!-- DIGITAL CAMERA LINK -->
+
+
+</robot>
