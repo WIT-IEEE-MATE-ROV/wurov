@@ -32,9 +32,6 @@
     <xacro:property name="thruster_radius" value="0.05" />
     <xacro:property name="thruster_length" value="0.05" />
     
-    
-
-
     <!-- ############################################################################################### -->
     <!-- BASE LINK -->
     <link name="base_link"/>
@@ -134,7 +131,7 @@
 
     <!-- ############################################################################################### -->
     <!-- FRONT DEPTH THRUSTER LINK -->
-    <joint name="depth_thruster_front" type="continuous">
+    <joint name="depth_thruster_front_joint" type="continuous">
         <parent link="base_link"/>
         <child link="depth_thruster_front"/>
         <origin xyz="0.25 0 0" rpy="${pi} 0 0" />
@@ -153,7 +150,7 @@
 
     <!-- ############################################################################################### -->
     <!-- BACK DEPTH THRUSTER LINK -->
-    <joint name="depth_thruster_back" type="continuous">
+    <joint name="depth_thruster_back_joint" type="continuous">
         <parent link="base_link"/>
         <child link="depth_thruster_back"/>
         <origin xyz="-0.25 0 0" rpy="${pi} 0 0" />
@@ -172,6 +169,20 @@
 
     <!-- ############################################################################################### -->
     <!-- IMU LINK -->
+    <joint name="imu_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="imu"/>
+        <origin xyz="0 0 0.1" rpy="0 0 0" />
+    </joint>
+
+    <link name="imu">
+        <visual>
+            <geometry>
+                <cylinder radius="0.05" length="0.01"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
 
     <!-- ############################################################################################### -->
     <!-- DIGITAL CAMERA LINK -->
