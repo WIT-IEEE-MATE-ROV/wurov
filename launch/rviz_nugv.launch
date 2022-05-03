@@ -1,10 +1,6 @@
 <launch>
-  <param  
-    name="robot_description" 
-    command="xacro '$(find wurov)/urdf/nugv.urdf.xacro'"
-  />  
+  <include file="$(find wurov)/launch/urdf_nugv.launch" />
+
   <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)"/>
 </launch>
