@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+#! DEPRECATED, FOR VIEWING PURPOSES ONLY
+
 """
 
  This file is part of Enbarr.

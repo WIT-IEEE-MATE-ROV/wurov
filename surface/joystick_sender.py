@@ -21,14 +21,10 @@
 
 import os
 import rospy
-import rospkg
 import pygame
 import sys
 import argparse
 import socket
-import time
-import json
-import rospkg
 import os
 
 from wurov.msg import surface_command, io_request, trajectory
@@ -41,15 +37,11 @@ class joystick_sender:
 
         parser = argparse.ArgumentParser("Find a plugged in joystick and send it over /surface_command.")
         parser.add_argument('--config_name', type=str, help='Set the name of the file we should use as a config (from '
-                                                            'within the config directory)')
+                                                            'within the config directory)', required=True)
         self.args = parser.parse_args(rospy.myargv()[1:])
+        namespace = f"/{rospy.get_name()}/Controllers/{self.args.config_name}"
 
-        rp = rospkg.RosPack()
-        package_path = rp.get_path('wurov')
-        controllerConfPath = package_path + "/config/controller.json"
-
-        with open(controllerConfPath, 'r') as conf:
-            self.controllerConfig = json.load(conf)["Controllers"][self.args.config_name]
+        self.controllerConfig = rospy.get_param(namespace)
 
         self.already_sent_zero = True  # Set to true so that we aren't trying to set anything to zero on startup
         self.last_sent = ""
