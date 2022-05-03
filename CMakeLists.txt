@@ -61,6 +61,7 @@ add_message_files(
   trajectory.msg
   translation.msg
   magnetometer.msg
+  system_stats.msg
 )
 
 ## Generate services in the 'srv' folder
