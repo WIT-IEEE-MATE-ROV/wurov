@@ -52,11 +52,10 @@ class simulate_imu_data:
         # A real sensor is likley providing accelerometer, gyroscope, and magnetometer values
         # Combine them to produce more accure roll/pitch/yaw/x/y/z values
         current_time = rospy.Time.now()
-        self.imu_msg.header.stamp = current_time
-        self.imu_msg.header.stamp = current_time
-        self.imu_msg.header.frame_id = ''
 
         # Imu msg
+        self.imu_msg.header.stamp = current_time
+        self.imu_msg.header.frame_id = ''
         self.imu_msg.orientation.x = np.random.normal()
         self.imu_msg.orientation.y = np.random.normal()
         self.imu_msg.orientation.z = np.random.normal()
@@ -69,6 +68,8 @@ class simulate_imu_data:
         self.imu_msg.angular_velocity.z = np.random.normal()
 
         # Mag msg
+        self.mag_msg.header.stamp = current_time
+        self.mag_msg.header.frame_id = ''
         self.mag_msg.magnetic_field.x = np.random.normal()
         self.mag_msg.magnetic_field.y = np.random.normal()
         self.mag_msg.magnetic_field.z = np.random.normal()
