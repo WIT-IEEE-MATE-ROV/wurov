@@ -12,6 +12,6 @@ world_frame: enu
 use_mag: true
 
 # If set to true, subscribe to the /imu/mag topic as a sensor_msgs/MagneticField message
-use_magnetic_field_msg: false
+use_magnetic_field_msg: true
 
 remove_gravity_vector: true
