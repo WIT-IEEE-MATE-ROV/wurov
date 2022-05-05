@@ -1,6 +1,10 @@
 <launch>
+
+    <!-- Start collecting IMU data and filter it -->
+    <include file="$(find wurov)/launch/imu_data_raw.launch" />
+    <include file="$(find wurov)/launch/imu_filter_madgwick.launch" />
+
     <node name="command_receiver" pkg="wurov" type="command_receiver.py" args="" />
     <node name="thruster_converter" pkg="wurov" type="vector_trajectory_converter.py" args="" />
-    <node name="filtering" pkg="wurov" type="rolling_average.py" />
     <node name="control_loop" pkg="wurov" type="control_loop_pi.py" />
 </launch>

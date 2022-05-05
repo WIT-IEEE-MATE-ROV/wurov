@@ -1,6 +1,0 @@
-<launch>
-    <!-- <include file="$(find wurov)/launch/imu_data_raw.launch" /> -->
-    <node pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_data_madgwick">
-        <rosparam command="load" file="$(find wurov)/config/imu_filter_madgwick.yaml" />
-    </node>
-</launch>
