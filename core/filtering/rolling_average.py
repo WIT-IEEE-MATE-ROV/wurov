@@ -24,7 +24,7 @@ from sensor_msgs.msg import Imu
 
 
 class RollingAvg:
-    def __init__(self, pub_topic) -> None:
+    def __init__(self, pub_topic='imu/data') -> None:
         self.imu_pub = rospy.Publisher(pub_topic, Imu, queue_size=3)
         self.history = []
         self.history_max_length = 3
