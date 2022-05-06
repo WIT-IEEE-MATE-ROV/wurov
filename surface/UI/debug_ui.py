@@ -25,14 +25,14 @@ Header = QtGui.QFont("Roboto", 12, QtGui.QFont.Bold)
 Body = QtGui.QFont("Roboto", 10)
 
 
-class WUROV(QWidget):
+class debug_ui(QWidget):
     def __init__(self):
         rospy.init_node('gui', anonymous=True)
         rospy.Subscriber('imu/data_raw', Imu, self.update_raw_imu)
         rospy.Subscriber('imu/data', Imu, self.update_filtered_imu)
 
         # Style settings for GUI
-        super(WUROV, self).__init__()
+        super(debug_ui, self).__init__()
         self.setGeometry(0, 0, width, height)
         self.setWindowTitle("WUROV Control")
         self.setStyleSheet('background-color: ' +
@@ -132,6 +132,8 @@ class WUROV(QWidget):
         self.speed = roundProgressBar()
         self.speed.rpb_setRange(0, 1.5)
         self.speed.rpb_setTextFormat('Value')
+        self.speed.rpb_setValue(0)
+
 
     # Update functions change labels based on callback
     def update_raw_imu(self, data):
@@ -167,7 +169,7 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    win = WUROV()
+    win = debug_ui()
 
     def window():
         if fullscreenMode:

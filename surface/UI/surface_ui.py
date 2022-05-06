@@ -28,7 +28,7 @@ Header = QtGui.QFont("Roboto", 12, QtGui.QFont.Bold)
 Body = QtGui.QFont("Roboto", 10)
 
 
-class WUROV(QWidget):
+class surface_ui(QWidget):
     def __init__(self):
         rospy.init_node('gui', anonymous=True)
         rospy.Subscriber('camera', CameraInfo, self.update_camera)
@@ -37,7 +37,7 @@ class WUROV(QWidget):
         self.path = rospack.get_path('wurov')
 
         # Style settings for GUI
-        super(WUROV, self).__init__()
+        super(surface_ui, self).__init__()
         self.setGeometry(0, 0, width, height)
         self.setWindowTitle("WUROV Control")
         self.setStyleSheet('background-color: ' + '#2C2F33' + ';color: ' + 'white')
@@ -62,6 +62,7 @@ class WUROV(QWidget):
         self.speed = roundProgressBar()
         self.speed.rpb_setRange(0, 1.5) 
         self.speed.rpb_setTextFormat('Value')
+        self.speed.rpb_setValue(0)
 
     def update_filtered_imu(self, data):
         acel_mag = math.sqrt(data.linear_acceleration.x**2 + data.linear_acceleration.y**2 + data.linear_acceleration.z**2)
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    win = WUROV()
+    win = surface_ui()
 
 
     def window():
