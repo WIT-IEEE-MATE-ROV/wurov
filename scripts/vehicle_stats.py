@@ -23,7 +23,7 @@ class vehicle_stats:
 
         ret_msg.temp = CPUTemperature().temperature
 
-        self.publisher.publish(ret_msg)
+        self._publisher.publish(ret_msg)
 
 if __name__ == '__main__':
     vehicle_stats()
