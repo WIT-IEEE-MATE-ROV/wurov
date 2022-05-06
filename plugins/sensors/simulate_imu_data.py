@@ -55,7 +55,7 @@ class simulate_imu_data:
 
         # Imu msg
         self.imu_msg.header.stamp = current_time
-        self.imu_msg.header.frame_id = ''
+        self.imu_msg.header.frame_id = 'base_link'
         self.imu_msg.orientation.x = np.random.normal()
         self.imu_msg.orientation.y = np.random.normal()
         self.imu_msg.orientation.z = np.random.normal()
@@ -69,7 +69,7 @@ class simulate_imu_data:
 
         # Mag msg
         self.mag_msg.header.stamp = current_time
-        self.mag_msg.header.frame_id = ''
+        self.mag_msg.header.frame_id = 'base_link'
         self.mag_msg.magnetic_field.x = np.random.normal()
         self.mag_msg.magnetic_field.y = np.random.normal()
         self.mag_msg.magnetic_field.z = np.random.normal()

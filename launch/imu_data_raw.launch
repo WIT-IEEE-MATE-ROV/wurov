@@ -1,3 +1,0 @@
-<launch>
-    <node pkg="wurov" type="imu_data_fxas21002c_fxos8700.py" name="imu_data_raw"/>
-</launch>

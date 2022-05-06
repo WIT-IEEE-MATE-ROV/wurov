@@ -1,7 +1,6 @@
 <launch>
 
     <!-- Start collecting IMU data and filter it -->
-    <include file="$(find wurov)/launch/imu_data_raw.launch" />
     <include file="$(find wurov)/launch/imu_filter_madgwick.launch" />
 
     <node name="command_receiver" pkg="wurov" type="command_receiver.py" args="" />
