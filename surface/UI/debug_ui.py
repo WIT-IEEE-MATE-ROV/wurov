@@ -17,8 +17,6 @@ from sensor_msgs.msg import Imu, MagneticField
 
 # Configurations
 fullscreenMode = True
-cameraIndex1 = 2
-cameraIndex2 = 1
 # Enter Screen Resolution for surface station(Only if fullscreenMode is disabled)
 height = 1080
 width = 1920

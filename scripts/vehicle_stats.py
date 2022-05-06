@@ -10,7 +10,7 @@ class vehicle_stats:
     def __init__(self):
         rospy.init_node('vehicle_stats', anonymous=True)
 
-        self.nineDof_current_pub = rospy.Publisher(
+        self.publisher = rospy.Publisher(
             'vehicle_stats', system_stats, queue_size=3)
 
 
