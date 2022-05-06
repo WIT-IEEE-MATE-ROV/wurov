@@ -1,17 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtCore import QTimer
+from PySide2.QtWidgets import QApplication, QWidget
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+from PySide2.QtCore import *
 import os
 import sys
 import rospy
+import math
+from PySide2extn.RoundProgressBar import roundProgressBar
 
 from wurov.msg import system_stats
-from wurov.msg import ninedof
+from sensor_msgs.msg import Imu, MagneticField, CameraInfo
+
+import rospkg 
+
 
 # Configurations
 fullscreenMode = True
@@ -28,8 +33,10 @@ Body = QtGui.QFont("Roboto", 10)
 class WUROV(QWidget):
     def __init__(self):
         rospy.init_node('gui', anonymous=True)
-        rospy.Subscriber('ninedof_values', ninedof, self.sensor)
-
+        rospy.Subscriber('camera', CameraInfo, self.update_camera)
+        rospy.Subscriber('imu/data', Imu, self.update_filtered_imu)
+        rospack = rospkg.RosPack()
+        self.path = rospack.get_path('wurov')
 
         # Style settings for GUI
         super(WUROV, self).__init__()
@@ -38,60 +45,33 @@ class WUROV(QWidget):
         self.setStyleSheet('background-color: ' + '#2C2F33' + ';color: ' + 'white')
 
         # Grid layout for GUI
-        self.nineDof()
+        self.widgets()
         grid = QtWidgets.QGridLayout()
-        grid.addWidget(self.cam1, 1, 0)
-        grid.addWidget(self.cam2, 1, 1)
-        grid.addWidget(self.accel_x, 2, 0)
-        grid.addWidget(self.accel_y, 3, 0)
-        grid.addWidget(self.accel_z, 4, 0)
-        grid.addWidget(self.roll, 5, 0)
-        grid.addWidget(self.pitch, 6, 0)
-        grid.addWidget(self.yaw, 7, 0)
+
+        grid.addWidget(self.camera, 0,0)
+
+        grid.addWidget(self.speed, 1, 0)
         self.setLayout(grid)
 
-        # Refreshes Qlabel on a timer
-        timer = QTimer(self)
-        timer.start()
-        timer = QTimer(self)
-        timer.setInterval(10)
-        timer.timeout.connect(self.sensor)
-        timer.start()
 
     # NineDof labels to display sensor read outs
-    def nineDof(self):
-        self.accel_x = QtWidgets.QLabel(self)
-        self.accel_x.setFont(QtGui.QFont(Body))
-        self.accel_x.adjustSize()
+    def widgets(self):
+        #Camera widget
+        self.camera = QtWidgets.QLabel(self)
+        pixmap = QPixmap(f'{self.path}/surface/UI/default.jpg')
+        self.camera.setPixmap(pixmap)
+        #Speedometer widget
+        self.speed = roundProgressBar()
+        self.speed.rpb_setRange(0, 1.5) 
+        self.speed.rpb_setTextFormat('Value')
 
-        self.accel_y = QtWidgets.QLabel(self)
-        self.accel_y.setFont(QtGui.QFont(Body))
-        self.accel_y.adjustSize()
+    def update_filtered_imu(self, data):
+        acel_mag = math.sqrt(data.linear_acceleration.x**2 + data.linear_acceleration.y**2 + data.linear_acceleration.z**2)
+        self.speed.rpb_setValue(acel_mag)
 
-        self.accel_z = QtWidgets.QLabel(self)
-        self.accel_z.setFont(QtGui.QFont(Body))
-        self.accel_z.adjustSize()
-
-        self.yaw = QtWidgets.QLabel(self)
-        self.yaw.setFont(QtGui.QFont(Body))
-        self.yaw.adjustSize()
-
-        self.pitch = QtWidgets.QLabel(self)
-        self.pitch.setFont(QtGui.QFont(Body))
-        self.pitch.adjustSize()
-
-        self.roll = QtWidgets.QLabel(self)
-        self.roll.setFont(QtGui.QFont(Body))
-        self.roll.adjustSize()
-
-    # Sensor function updates labels from receive_nineDof.py
-    def sensor(self, data):
-        self.accel_x.setText("X: " + ndof.get_x())
-        self.accel_y.setText("Y: " + ndof.get_y())
-        self.accel_z.setText("Z: " + ndof.get_z())
-        self.roll.setText("Roll: " + ndof.get_roll())
-        self.pitch.setText("Pitch: " + ndof.get_pitch())
-        self.yaw.setText("Yaw: " + ndof.get_yaw())
+    def update_camera(self, data): #update camera based on ROS message
+        qimage = QtGui.QImage.fromData(data.data)
+        self.camera.setPixmap(QtGui.QPixmap.fromImage(qimage))
 
     def alert(self, s):
         """
