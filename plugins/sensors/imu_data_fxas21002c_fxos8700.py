@@ -34,25 +34,33 @@ class imu_data:
         rospy.spin()
 
     def read_imu(self, data):
-        accel_x, accel_y, accel_z = self.sensor.accelerometer                   # in m/s^2
+        # REP103:
+        # +x: forward
+        # +y: left
+        # +z: up
+        accel_y, accel_z, accel_x = self.sensor.accelerometer                   # in m/s^2
+        ang_y, ang_z, ang_x = self.gyroSensor.gyroscope                         # in Radians/s
+
+        # TODO: mag needs calibrations
+        # TODO: correct mag components?
         mag_x, mag_y, mag_z = [k/1000000 for k in self.sensor.magnetometer]     # in Tesla
-        ang_x, ang_y, ang_z = self.gyroSensor.gyroscope                         # in Radians/s
+
 
         current_time = rospy.Time.now()
 
         # Imu msg
         self.imu_msg.header.stamp = current_time
-        self.imu_msg.header.frame_id = ''                # Need to do URDF
+        self.imu_msg.header.frame_id = 'base_link'                # Need to do URDF
         self.imu_msg.linear_acceleration.x = accel_x
         self.imu_msg.linear_acceleration.y = accel_y
-        self.imu_msg.linear_acceleration.z = accel_z 
+        self.imu_msg.linear_acceleration.z = -accel_z 
         self.imu_msg.angular_velocity.x = ang_x
         self.imu_msg.angular_velocity.y = ang_y
         self.imu_msg.angular_velocity.z = ang_z
 
         # Mag msg
         self.mag_msg.header.stamp = current_time
-        self.mag_msg.header.frame_id = ''                # Need to do URDF
+        self.mag_msg.header.frame_id = 'base_link'                # Need to do URDF
         self.mag_msg.magnetic_field.x = mag_x
         self.mag_msg.magnetic_field.y = mag_y
         self.mag_msg.magnetic_field.z = mag_z
