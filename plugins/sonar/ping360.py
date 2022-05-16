@@ -4,7 +4,7 @@ import rospy
 import numpy as np
 from brping import Ping360
 from sensor_msgs.msg import LaserScan
-
+import math
 
 class ping360:
     def __init__(self):
@@ -31,14 +31,24 @@ class ping360:
 
     def publisher(self, data):
         msg = LaserScan()
-        LaserScan.angle_min = 0
-        LaserScan.angle_max = 400
-        LaserScan.angle_increment = 20
+        msg.angle_min = 0
+        msg.angle_max = 6.28319 #360 degrees
+        msg.angle_increment = 0.314159 #20 gradians
 
-        LaserScan.ranges = []
-
+        msg.ranges = []
+        data = []
         for val in range(20):
-            LaserScan.ranges.append(self.sensor.transmitAngle(val * 20))
+            scan = self.sensor.transmitAngle(val * 20) #angle in gradians
+            data = scan.data
+            msg.ranges.append(-1)
+            for detectedIntensity in data:
+                if detectedIntensity >= 200:
+                    detectedIndex = data.index(detectedIntensity)
+                    rangeVal = (1+detectedIndex)  * 1481 * 25e-9 * 80/ 2
+                    if rangeVal > 0.75:
+                        msg.ranges.pop()
+                        msg.ranges.append(rangeVal)
+                        break
 
         self._publisher.publish(msg)
 
