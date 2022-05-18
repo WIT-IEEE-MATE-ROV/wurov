@@ -1,16 +1,29 @@
 #!/usr/bin/env python3
 
-from curses import update_lines_cols
 from simple_pid import PID
 import rospy
-
-from sensor_msgs.msg import Imu, MagneticField
+from sensor_msgs.msg import Imu
 from wurov.msg import trajectory
-
+import argparse
+from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 
 class simulate_imu_data:
     def __init__(self):  
         rospy.init_node('pid', anonymous=True)
+
+        parser = argparse.ArgumentParser("Dynamic Reconfig")
+        parser.add_argument('--dynamic_reconfig', type=bool, help='set to true if dynamic reconfig should be enabled')
+        self.args = parser.parse_args(rospy.myargv()[1:])
+
+        if self.args.dynamic_reconfig:
+            self.dynamic_rec()
+
+        #set initial current values to 0
+        self.currentPitch = 0
+        self.currentYaw = 0
+        self.currentAccel_x = 0
+        self.currentAccel_y = 0
+        self.currentAccel_z = 0
 
         rospy.Subscriber('imu/data', Imu, self.updateCurrent)
         rospy.Subscriber('trajectory_request', trajectory, self.updateSetpoint)
@@ -52,6 +65,41 @@ class simulate_imu_data:
         msg.translation.z = self.zAcelPID(self.currentAccel_z)
 
         self._publisher.publish(msg)
+
+    def dynamic_rec(self):
+        self.ddynrec = DDynamicReconfigure("pid_rec")
+
+        self.ddynrec.add_variable("yawP", "yaw proportion scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("yawI", "yaw integral scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("yawD", "yaw derrivative scale", 0.0, -1.0, 1.0)
+
+        self.ddynrec.add_variable("rollP", "rollP proportion scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("rollI", "rollP integral scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("rollD", "rollP derrivative scale", 0.0, -1.0, 1.0)
+
+        self.ddynrec.add_variable("xAcelP", "xAcelP proportion scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("xAcelI", "xAcelP integral scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("xAcelD", "xAcelP derrivative scale", 0.0, -1.0, 1.0)
+
+        self.ddynrec.add_variable("yAcelP", "yAcelP proportion scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("yAcelI", "yAcelP integral scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("yAcelD", "yAcelP derrivative scale", 0.0, -1.0, 1.0)
+
+        self.ddynrec.add_variable("zAcelP", "zAcelP proportion scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("zAcelI", "zAcelP integral scale", 0.0, -1.0, 1.0)
+        self.ddynrec.add_variable("zAcelD", "zAcelP derrivative scale", 0.0, -1.0, 1.0)
+
+        self.ddynrec.start(self.dyn_rec_callback)
+
+    def dyn_rec_callback(self, config, data):
+
+        self.yawPID = PID(config["yawP"], config["yawI"], config["yawD"])
+        self.pitchPID = PID(config["rollP"], config["rollI"], config["rollD"])
+        self.xAcelPID = PID(config["xAcelP"], config["xAcelI"], config["xAcelD"])
+        self.yAcelPID = PID(config["yAcelP"], config["yAcelI"], config["yAcelD"])
+        self.zAcelPID = PID(config["zAcelP"], config["zAcelI"], config["zAcelD"])
+
+        return config
 
 if __name__ == '__main__':
     simulate_imu_data() 
