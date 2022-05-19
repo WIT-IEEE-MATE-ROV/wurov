@@ -33,19 +33,19 @@ class simulate_imu_data:
         rospy.Timer(rospy.Duration(0.1), self.pid)
 
         self.yawPID = PID(1, 0.1, 0.05)
-        self.pitchPID = PID(1, 0.1, 0.05)
-        self.xAcelPID = PID(1, 0.1, 0.05)
-        self.yAcelPID = PID(1, 0.1, 0.05)
-        self.zAcelPID = PID(1, 0.1, 0.05)
+        self.pitchPID = PID(1, 0.1, 1)
+        self.xAcelPID = PID(1, 0.1, 1)
+        self.yAcelPID = PID(1, 1, 1)
+        self.zAcelPID = PID(1, 1, 1)
 
         rospy.spin()
 
     def updateCurrent(self, data):
-        self.currentPitch = data.orientation.pitch
-        self.currentYaw = data.orientation.yaw
-        self.currentAccel_x = data.translation.x
-        self.currentAccel_y = data.translation.y
-        self.currentAccel_z = data.translation.z
+        self.currentPitch = data.orientation.x
+        self.currentYaw = data.orientation.y
+        self.currentAccel_x = data.linear_acceleration.x
+        self.currentAccel_y = data.linear_acceleration.y
+        self.currentAccel_z = data.linear_acceleration.z
 
 
     def updateSetpoint(self, data):

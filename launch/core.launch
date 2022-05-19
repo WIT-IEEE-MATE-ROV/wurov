@@ -5,5 +5,6 @@
 
     <node name="command_receiver" pkg="wurov" type="command_receiver.py" args="" />
     <node name="thruster_converter" pkg="wurov" type="vector_trajectory_converter.py" args="" />
-    <node name="control_loop" pkg="wurov" type="control_loop_pi.py" />
+
+    <node name="control_loop" pkg="wurov" type="pid.py"/>
 </launch>
