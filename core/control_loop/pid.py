@@ -6,11 +6,12 @@ from sensor_msgs.msg import Imu
 from wurov.msg import trajectory
 import argparse
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
+import time
 
 class simulate_imu_data:
     def __init__(self):  
         rospy.init_node('pid', anonymous=True)
-
+        time.sleep(15) #sleep for init cycle
         parser = argparse.ArgumentParser("Dynamic Reconfig")
         parser.add_argument('--dynamic_reconfig', type=bool, help='set to true if dynamic reconfig should be enabled')
         self.args = parser.parse_args(rospy.myargv()[1:])
@@ -32,11 +33,11 @@ class simulate_imu_data:
 
         rospy.Timer(rospy.Duration(0.1), self.pid)
 
-        self.yawPID = PID(1, 0.1, 0.05)
-        self.pitchPID = PID(1, 0.1, 1)
-        self.xAcelPID = PID(1, 0.1, 1)
-        self.yAcelPID = PID(1, 1, 1)
-        self.zAcelPID = PID(1, 1, 1)
+        self.yawPID = PID(0.1, 0, 0)
+        self.pitchPID = PID(0.1, 0, 0)
+        self.xAcelPID = PID(0.1, 0, 0)
+        self.yAcelPID = PID(0.1, 0, 0)
+        self.zAcelPID = PID(0.1, 0, 0)
 
         rospy.spin()
 
