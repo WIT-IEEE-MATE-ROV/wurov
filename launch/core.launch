@@ -2,7 +2,7 @@
 
     <!-- Start collecting IMU data and filter it -->
     <arg name="simulate" default="false" doc="'simulate:=true' will publish randomized data to /imu/data_raw and /imu/mag"/>
-    <include file="$(find wurov)/launch/imu_filter_madgwick.launch"/>
+    <include file="$(find wurov)/launch/imu_filter_madgwick.launch">
         <arg name="simulate" value="$(arg simulate)" /> 
     </include>
 
