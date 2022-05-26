@@ -43,7 +43,7 @@ class imu_data:
 
         # TODO: mag needs calibrations
         # TODO: correct mag components?
-        mag_x, mag_y, mag_z = [k/1000000 for k in self.sensor.magnetometer]     # in Tesla
+        mag_y, mag_z, mag_x = [k/1000000 for k in self.sensor.magnetometer]     # in Tesla
 
 
         current_time = rospy.Time.now()
