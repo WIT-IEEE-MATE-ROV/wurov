@@ -2,8 +2,10 @@
 
     <!-- Start collecting IMU data and filter it -->
     <arg name="simulate" default="false" doc="'simulate:=true' will publish randomized data to /imu/data_raw and /imu/mag"/>
+    <arg name="rpy" default="true" doc="'rpy:=true' will publish Roll, Pitch, Yaw data to /imu/rpy"/>
     <include file="$(find wurov)/launch/imu_filter_madgwick.launch">
         <arg name="simulate" value="$(arg simulate)" /> 
+        <arg name="rpy" value="$(arg rpy)" /> 
     </include>
 
     <node name="command_receiver" pkg="wurov" type="command_receiver.py" args="" />

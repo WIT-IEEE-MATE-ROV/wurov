@@ -42,7 +42,6 @@ class imu_data:
         ang_y, ang_z, ang_x = self.gyroSensor.gyroscope                         # in Radians/s
 
         # TODO: mag needs calibrations
-        # TODO: correct mag components?
         mag_y, mag_z, mag_x = [k/1000000 for k in self.sensor.magnetometer]     # in Tesla
 
 
@@ -50,7 +49,7 @@ class imu_data:
 
         # Imu msg
         self.imu_msg.header.stamp = current_time
-        self.imu_msg.header.frame_id = 'base_link'                # Need to do URDF
+        self.imu_msg.header.frame_id = 'base_link'
         self.imu_msg.linear_acceleration.x = accel_x
         self.imu_msg.linear_acceleration.y = accel_y
         self.imu_msg.linear_acceleration.z = -accel_z 
@@ -60,7 +59,7 @@ class imu_data:
 
         # Mag msg
         self.mag_msg.header.stamp = current_time
-        self.mag_msg.header.frame_id = 'base_link'                # Need to do URDF
+        self.mag_msg.header.frame_id = 'base_link'
         self.mag_msg.magnetic_field.x = mag_x
         self.mag_msg.magnetic_field.y = mag_y
         self.mag_msg.magnetic_field.z = mag_z
