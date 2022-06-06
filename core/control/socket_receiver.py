@@ -43,26 +43,27 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
         global trajectory_publisher, mode_publisher
         sendtraj = trajectory()
         sendmode = mode()
+        sendtraj.header.stamp = rospy.Time.now()
         try:
             datadict = json.loads(payload.decode('utf-8'))
-            sendtraj.orientation.roll = float(datadict['r'])
-            sendtraj.orientation.pitch = float(datadict['p'])
-            sendtraj.orientation.yaw = float(datadict['c'])
-            sendtraj.translation.x = float(datadict['x'])
-            sendtraj.translation.y = float(datadict['y'])
-            sendtraj.translation.z = float(datadict['z'])
+            sendtraj.angular.x = float(datadict['r'])
+            sendtraj.angular.y = float(datadict['p'])
+            sendtraj.angular.z = float(datadict['c'])
+            sendtraj.linear.x = float(datadict['x'])
+            sendtraj.linear.y = float(datadict['y'])
+            sendtraj.linear.z = float(datadict['z'])
 
             trajectory_publisher.publish(sendtraj)
             self.sendMessage(b"Joystick executor message consumed!")
 
         except Exception as e:
             # If anything messes up, make sure the thrusters aren't spinning anymore
-            sendtraj.orientation.roll = 0
-            sendtraj.orientation.pitch = 0
-            sendtraj.orientation.yaw = 0
-            sendtraj.translation.x = 0
-            sendtraj.translation.y = 0
-            sendtraj.translation.z = 0
+            sendtraj.angular.roll = 0
+            sendtraj.angular.pitch = 0
+            sendtraj.angular.yaw = 0
+            sendtraj.linear.x = 0
+            sendtraj.linear.y = 0
+            sendtraj.linear.z = 0
             sendmode.auvmode = True
             sendmode.rovmode = False
             trajectory_publisher.publish(sendtraj)

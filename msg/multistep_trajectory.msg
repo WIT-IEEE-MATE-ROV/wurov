@@ -2,4 +2,4 @@
 Header header 
 
 uint8 length
-trajectory[] trajectories
+geometry_msgs/Accel[] trajectories

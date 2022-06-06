@@ -58,12 +58,12 @@ class simulate_imu_data:
 
     def pid(self, data):
         msg = trajectory()
-
-        msg.orientation.pitch = self.yawPID(self.currentYaw)
-        msg.orientation.yaw = self.pitchPID(self.currentPitch)
-        msg.translation.x = self.xAcelPID(self.currentAccel_x)
-        msg.translation.y = self.yAcelPID(self.currentAccel_y)
-        msg.translation.z = self.zAcelPID(self.currentAccel_z)
+        msg.header.stamp = rospy.Time.now()
+        msg.angular.y = self.yawPID(self.currentYaw)
+        msg.angular.z = self.pitchPID(self.currentPitch)
+        msg.linear.x = self.xAcelPID(self.currentAccel_x)
+        msg.linear.y = self.yAcelPID(self.currentAccel_y)
+        msg.linear.z = self.zAcelPID(self.currentAccel_z)
 
         self._publisher.publish(msg)
 
