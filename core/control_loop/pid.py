@@ -42,8 +42,8 @@ class simulate_imu_data:
         rospy.spin()
 
     def updateCurrent(self, data):
-        self.currentPitch = data.orientation.x
-        self.currentYaw = data.orientation.y
+        self.currentPitch = data.angular_velocity.x
+        self.currentYaw = data.angular_velocity.y
         self.currentAccel_x = data.linear_acceleration.x
         self.currentAccel_y = data.linear_acceleration.y
         self.currentAccel_z = data.linear_acceleration.z
