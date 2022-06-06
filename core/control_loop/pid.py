@@ -33,28 +33,28 @@ class simulate_imu_data:
 
         rospy.Timer(rospy.Duration(0.1), self.pid)
 
-        self.yawPID = PID(0.1, 0, 0)
-        self.pitchPID = PID(0.1, 0, 0)
-        self.xAcelPID = PID(0.1, 0, 0)
-        self.yAcelPID = PID(0.1, 0, 0)
-        self.zAcelPID = PID(0.1, 0, 0)
+        self.yawPID = PID(0.3, 0, 0)
+        self.pitchPID = PID(0.3, 0, 0)
+        self.xAcelPID = PID(0.3, 0, 0)
+        self.yAcelPID = PID(0.3, 0, 0)
+        self.zAcelPID = PID(0.3, 0, 0)
 
         rospy.spin()
 
     def updateCurrent(self, data):
-        self.currentPitch = data.orientation.x
-        self.currentYaw = data.orientation.y
+        self.currentPitch = data.angular_velocity.y
+        self.currentYaw = data.angular_velocity.z
         self.currentAccel_x = data.linear_acceleration.x
         self.currentAccel_y = data.linear_acceleration.y
         self.currentAccel_z = data.linear_acceleration.z
 
 
     def updateSetpoint(self, data):
-        self.pitchPID.setpoint = data.filtered_ang_z
-        self.yawPID.setpoint = data.filtered_ang_y
-        self.xAcelPID.setpoint = data.filtered_accel_x
-        self.yAcelPID.setpoint = data.filtered_accel_y
-        self.zAcelPID.setpoint = data.filtered_accel_z
+        self.pitchPID.setpoint = data.orientation.pitch
+        self.yawPID.setpoint = data.orientation.yaw
+        self.xAcelPID.setpoint = data.translation.x
+        self.yAcelPID.setpoint = data.translation.y
+        self.zAcelPID.setpoint = data.translation.z
 
     def pid(self, data):
         msg = trajectory()
