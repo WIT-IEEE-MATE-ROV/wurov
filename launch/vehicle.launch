@@ -2,7 +2,8 @@
     <node name="pca9685" pkg="wurov" type="pca9685.py" args="46650 27000 --frequency 390 --top_front 5 --top_back 6 --front_right 1 --back_right 2 --back_left 3 --front_left 4" />
     <node name="thruster_tester" pkg="wurov" type="individual_thruster_control_pca.py" args="" />
 
-    <!-- It's usually easier to tack this on last (to keep error message line numbers accurate) -->
-    <include file="$(find wurov)/launch/core.launch" />
+    <node name="command_receiver" pkg="wurov" type="command_receiver.py" args="" />
+    <node name="thruster_converter" pkg="wurov" type="vector_trajectory_converter.py" args="" />
+
 
 </launch>

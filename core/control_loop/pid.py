@@ -33,37 +33,52 @@ class simulate_imu_data:
 
         rospy.Timer(rospy.Duration(0.1), self.pid)
 
-        self.yawPID = PID(0.1, 0, 0)
-        self.pitchPID = PID(0.1, 0, 0)
-        self.xAcelPID = PID(0.1, 0, 0)
-        self.yAcelPID = PID(0.1, 0, 0)
-        self.zAcelPID = PID(0.1, 0, 0)
+        self.yawPID = PID(0.3, 0, 0)
+        self.pitchPID = PID(0.3, 0, 0)
+        self.xAcelPID = PID(0.3, 0, 0)
+        self.yAcelPID = PID(0.3, 0, 0)
+        self.zAcelPID = PID(0.3, 0, 0)
+
+        #Set initial trajectory_request to 0
+        self.yaw_value = 0
+        self.pitch_value = 0
+        self.xAcelPID_value = 0
+        self.yAcelPID_value = 0
+        self.zAcelPID_value = 0
 
         rospy.spin()
 
     def updateCurrent(self, data):
-        self.currentPitch = data.angular_velocity.x
-        self.currentYaw = data.angular_velocity.y
+        self.currentPitch = data.angular_velocity.y
+        self.currentYaw = data.angular_velocity.z
         self.currentAccel_x = data.linear_acceleration.x
         self.currentAccel_y = data.linear_acceleration.y
         self.currentAccel_z = data.linear_acceleration.z
 
 
     def updateSetpoint(self, data):
-        self.pitchPID.setpoint = data.filtered_ang_z
-        self.yawPID.setpoint = data.filtered_ang_y
-        self.xAcelPID.setpoint = data.filtered_accel_x
-        self.yAcelPID.setpoint = data.filtered_accel_y
-        self.zAcelPID.setpoint = data.filtered_accel_z
+        self.pitchPID.setpoint = data.orientation.pitch
+        self.yawPID.setpoint = data.orientation.yaw
+        self.xAcelPID.setpoint = data.translation.x
+        self.yAcelPID.setpoint = data.translation.y
+        self.zAcelPID.setpoint = data.translation.z
 
     def pid(self, data):
+        #TODO: Replace with geometry_msg
         msg = trajectory()
 
-        msg.orientation.pitch = self.yawPID(self.currentYaw)
-        msg.orientation.yaw = self.pitchPID(self.currentPitch)
-        msg.translation.x = self.xAcelPID(self.currentAccel_x)
-        msg.translation.y = self.yAcelPID(self.currentAccel_y)
-        msg.translation.z = self.zAcelPID(self.currentAccel_z)
+        #add step
+        self.yaw_value += self.yawPID(self.currentYaw)
+        self.pitch_value += self.pitchPID(self.currentYaw)
+        self.xAcelPID_value += self.xAcelPID(self.currentYaw)
+        self.yAcelPID_value += self.yAcelPID(self.currentYaw)
+        self.zAcelPID_value += self.zAcelPID(self.currentYaw)
+
+        msg.orientation.pitch = self.yaw_value
+        msg.orientation.yaw = self.pitch_value
+        msg.translation.x = self.xAcelPID_value
+        msg.translation.y = self.yAcelPID_value
+        msg.translation.z = self.zAcelPID_value
 
         self._publisher.publish(msg)
 
