@@ -57,8 +57,8 @@ class simulate_imu_data:
 
 
     def updateSetpoint(self, data):
-        self.pitchPID.setpoint = data.angular.pitch
-        self.yawPID.setpoint = data.angular.yaw
+        self.pitchPID.setpoint = data.angular.y
+        self.yawPID.setpoint = data.angular.z
         self.xAcelPID.setpoint = data.linear.x
         self.yAcelPID.setpoint = data.linear.y
         self.zAcelPID.setpoint = data.linear.z

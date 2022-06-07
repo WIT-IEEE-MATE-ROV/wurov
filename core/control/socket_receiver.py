@@ -58,9 +58,9 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
 
         except Exception as e:
             # If anything messes up, make sure the thrusters aren't spinning anymore
-            sendtraj.angular.roll = 0
-            sendtraj.angular.pitch = 0
-            sendtraj.angular.yaw = 0
+            sendtraj.angular.x = 0
+            sendtraj.angular.y = 0
+            sendtraj.angular.z = 0
             sendtraj.linear.x = 0
             sendtraj.linear.y = 0
             sendtraj.linear.z = 0
