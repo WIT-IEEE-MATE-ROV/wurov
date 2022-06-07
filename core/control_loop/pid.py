@@ -39,6 +39,13 @@ class simulate_imu_data:
         self.yAcelPID = PID(0.3, 0, 0)
         self.zAcelPID = PID(0.3, 0, 0)
 
+        #Set initial trajectory_request to 0
+        self.yaw_value = 0
+        self.pitch_value = 0
+        self.xAcelPID_value = 0
+        self.yAcelPID_value = 0
+        self.zAcelPID_value = 0
+
         rospy.spin()
 
     def updateCurrent(self, data):
@@ -57,13 +64,21 @@ class simulate_imu_data:
         self.zAcelPID.setpoint = data.translation.z
 
     def pid(self, data):
+        #TODO: Replace with geometry_msg
         msg = trajectory()
 
-        msg.orientation.pitch = self.yawPID(self.currentYaw)
-        msg.orientation.yaw = self.pitchPID(self.currentPitch)
-        msg.translation.x = self.xAcelPID(self.currentAccel_x)
-        msg.translation.y = self.yAcelPID(self.currentAccel_y)
-        msg.translation.z = self.zAcelPID(self.currentAccel_z)
+        #add step
+        self.yaw_value += self.yawPID(self.currentYaw)
+        self.pitch_value += self.pitchPID(self.currentYaw)
+        self.xAcelPID_value += self.xAcelPID(self.currentYaw)
+        self.yAcelPID_value += self.yAcelPID(self.currentYaw)
+        self.zAcelPID_value += self.zAcelPID(self.currentYaw)
+
+        msg.orientation.pitch = self.yaw_value
+        msg.orientation.yaw = self.pitch_value
+        msg.translation.x = self.xAcelPID_value
+        msg.translation.y = self.yAcelPID_value
+        msg.translation.z = self.zAcelPID_value
 
         self._publisher.publish(msg)
 
