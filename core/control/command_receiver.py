@@ -29,8 +29,7 @@ last_io_requests = surface_command().io_requests
 
 
 def trajectory_content_match(msg1, msg2):
-    return msg1.orientation == msg2.orientation and msg1.translation == msg2.translation
-
+    return msg1.linear == msg2.linear and msg1.angular == msg2.angular
 
 def io_content_match(msg1, msg_list):
     for msg in msg_list:

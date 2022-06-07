@@ -57,11 +57,11 @@ class simulate_imu_data:
 
 
     def updateSetpoint(self, data):
-        self.pitchPID.setpoint = data.orientation.pitch
-        self.yawPID.setpoint = data.orientation.yaw
-        self.xAcelPID.setpoint = data.translation.x
-        self.yAcelPID.setpoint = data.translation.y
-        self.zAcelPID.setpoint = data.translation.z
+        self.pitchPID.setpoint = data.angular.y
+        self.yawPID.setpoint = data.angular.z
+        self.xAcelPID.setpoint = data.linear.x
+        self.yAcelPID.setpoint = data.linear.y
+        self.zAcelPID.setpoint = data.linear.z
 
     def pid(self, data):
         #TODO: Replace with geometry_msg
@@ -74,11 +74,12 @@ class simulate_imu_data:
         self.yAcelPID_value += self.yAcelPID(self.currentYaw)
         self.zAcelPID_value += self.zAcelPID(self.currentYaw)
 
-        msg.orientation.pitch = self.yaw_value
-        msg.orientation.yaw = self.pitch_value
-        msg.translation.x = self.xAcelPID_value
-        msg.translation.y = self.yAcelPID_value
-        msg.translation.z = self.zAcelPID_value
+        msg.header.stamp = rospy.Time.now()
+        msg.angular.y = self.yaw_value
+        msg.angular.z = self.pitch_value
+        msg.linear.x = self.xAcelPID_value
+        msg.linear.y = self.yAcelPID_value
+        msg.linear.z = self.zAcelPID_value
 
         self._publisher.publish(msg)
 

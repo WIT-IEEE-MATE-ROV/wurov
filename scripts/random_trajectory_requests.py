@@ -32,13 +32,13 @@ if __name__ == '__main__':
     surface_command_msg = surface_command()
     rate = rospy.Rate(2)
     while not rospy.is_shutdown():
-        surface_command_msg.desired_trajectory.translation.x = np.random.normal()
-        surface_command_msg.desired_trajectory.translation.y = np.random.normal()
-        surface_command_msg.desired_trajectory.translation.z = np.random.normal()
+        surface_command_msg.desired_trajectory.linear.x = np.random.normal()
+        surface_command_msg.desired_trajectory.linear.y = np.random.normal()
+        surface_command_msg.desired_trajectory.linear.z = np.random.normal()
 
-        surface_command_msg.desired_trajectory.orientation.roll = np.random.normal()
-        surface_command_msg.desired_trajectory.orientation.pitch = np.random.normal()
-        surface_command_msg.desired_trajectory.orientation.yaw = np.random.normal()
+        surface_command_msg.desired_trajectory.angular.x = np.random.normal()
+        surface_command_msg.desired_trajectory.angular.y = np.random.normal()
+        surface_command_msg.desired_trajectory.angular.z = np.random.normal()
 
         command_publisher.publish(surface_command_msg)
 

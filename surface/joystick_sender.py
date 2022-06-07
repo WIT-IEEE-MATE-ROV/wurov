@@ -102,10 +102,11 @@ class joystick_sender:
                 quit()
 
             self.msg = surface_command()
-            self.msg.desired_trajectory.translation.x = -1 * horizontal_axis
-            self.msg.desired_trajectory.translation.y = vertical_axis  
-            self.msg.desired_trajectory.translation.z = depth_axis # Flipped: forward is negative, that's dumb
-            self.msg.desired_trajectory.orientation.yaw = -1 * twist_axis
+            self.msg .header.stamp = rospy.Time.now()
+            self.msg.desired_trajectory.linear.x = -1 * horizontal_axis
+            self.msg.desired_trajectory.linear.y = vertical_axis  
+            self.msg.desired_trajectory.linear.z = depth_axis # Flipped: forward is negative, that's dumb
+            self.msg.desired_trajectory.angular.z = -1 * twist_axis
             
             msg = self.handle_peripherals(self.joystick, self.msg)
             if self.different_msg(lastmsg, msg):
@@ -158,8 +159,8 @@ class joystick_sender:
         if msg1 is None or msg2 is None:
             return True
 
-        return msg1.desired_trajectory.orientation != msg2.desired_trajectory.orientation or \
-            msg1.desired_trajectory.translation != msg2.desired_trajectory.translation or \
+        return msg1.desired_trajectory.angular != msg2.desired_trajectory.angular or \
+            msg1.desired_trajectory.linear != msg2.desired_trajectory.linear or \
             msg1.io_requests != msg2.io_requests
 
     def hat_to_val(self, a, b):
@@ -210,12 +211,12 @@ class joystick_sender:
 
         if not joystick.get_button(self.controllerConfig["boostMode"]):  # 'Boost mode': If this button is pressed, multiply trajectory by 2
             # We implement this by always cutting by 2, and then when the button is pressed, not cutting in half.
-            msg.desired_trajectory.translation.x = msg.desired_trajectory.translation.x / 2
-            msg.desired_trajectory.translation.y = msg.desired_trajectory.translation.y / 2
-            msg.desired_trajectory.translation.z = msg.desired_trajectory.translation.z / 2
-            msg.desired_trajectory.orientation.roll = msg.desired_trajectory.orientation.roll / 2
-            msg.desired_trajectory.orientation.pitch = msg.desired_trajectory.orientation.pitch / 2
-            msg.desired_trajectory.orientation.yaw = msg.desired_trajectory.orientation.yaw / 2
+            msg.desired_trajectory.linear.x = msg.desired_trajectory.linear.x / 2
+            msg.desired_trajectory.linear.y = msg.desired_trajectory.linear.y / 2
+            msg.desired_trajectory.linear.z = msg.desired_trajectory.linear.z / 2
+            msg.desired_trajectory.angular.x = msg.desired_trajectory.angular.x / 2
+            msg.desired_trajectory.angular.y = msg.desired_trajectory.angular.y / 2
+            msg.desired_trajectory.angular.z = msg.desired_trajectory.angular.z / 2
 
         if joystick.get_button(self.controllerConfig["killThrusters"]):  # Kill thrusters button
             if not self.thruster_already_killed:

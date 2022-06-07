@@ -31,16 +31,18 @@ AUVMODE = False
 
 def joystick_callback(data):
     pubmsg = trajectory()
-    pubmsg.translation = data.translation
-    pubmsg.orientation = data.orientation
+    pubmsg.header.stamp = rospy.Time.now()
+    pubmsg.linear = data.linear
+    pubmsg.angular = data.angular
     if ROVMODE:
         pub.publish(data)
 
 
 def trajectory_callback(data):
     pubmsg = trajectory()
-    pubmsg.translation = data.translation
-    pubmsg.orientation = data.orientation
+    pubmsg.header.stamp = rospy.Time.now()
+    pubmsg.linear = data.linear
+    pubmsg.angular = data.angular
     if AUVMODE:
         pub.publish(data)
 
