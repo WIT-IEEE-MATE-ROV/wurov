@@ -28,7 +28,7 @@ class bar30:
             self.sensor.setFluidDensity(fluidDensity)
         except Exception as e:
             rospy.loginfo("No fluid density specified, using default")
-            
+
         rospy.Timer(rospy.Duration(publishDuration), self.publisher)
 
         rospy.spin()
@@ -36,11 +36,8 @@ class bar30:
     def publisher(self, data):
         self.sensor.read()
 
-        temp = self.sensor.depth()
-        depth = self.sensor.temperature()
-
-        self.temp_publisher.publish(depth)
-        self.depth_publisher.publish(temp)
+        self.temp_publisher.publish(self.sensor.depth())
+        self.depth_publisher.publish(self.sensor.temperature())
 
 if __name__ == '__main__':
     bar30() 
