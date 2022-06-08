@@ -1,10 +1,11 @@
 <launch>
     <!-- Start collecting IMU data and filter it -->
-    <include file="$(find wurov)/launch/imu_filter_madgwick.launch" />
-
     <node name="joystick_sender" pkg="wurov" type="joystick_sender.py" args="--config_name Xbox">
         <rosparam file="$(find wurov)/config/controller.yaml" />
     </node>
     
-    <node name="control_loop" pkg="wurov" type="pid.py"/>
+    <node name="control_loop" pkg="wurov" type="pid.py" args="--dynamic_reconfig True"/>
+
+    <include file="$(find wurov)/launch/imu_filter_madgwick.launch" />
+
 </launch>

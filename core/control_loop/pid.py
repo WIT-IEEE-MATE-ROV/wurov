@@ -3,7 +3,7 @@
 from simple_pid import PID
 import rospy
 from sensor_msgs.msg import Imu
-from wurov.msg import trajectory
+from geometry_msgs.msg import Accel
 import argparse
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 import time
@@ -27,9 +27,9 @@ class simulate_imu_data:
         self.currentAccel_z = 0
 
         rospy.Subscriber('imu/data', Imu, self.updateCurrent)
-        rospy.Subscriber('trajectory_request', trajectory, self.updateSetpoint)
+        rospy.Subscriber('trajectory_request', Accel, self.updateSetpoint)
 
-        self._publisher = rospy.Publisher('trajectory_corrected', trajectory, queue_size=3)
+        self._publisher = rospy.Publisher('trajectory_corrected', Accel, queue_size=3)
 
         rospy.Timer(rospy.Duration(0.1), self.pid)
 
@@ -57,15 +57,15 @@ class simulate_imu_data:
 
 
     def updateSetpoint(self, data):
-        self.pitchPID.setpoint = data.orientation.pitch
-        self.yawPID.setpoint = data.orientation.yaw
-        self.xAcelPID.setpoint = data.translation.x
-        self.yAcelPID.setpoint = data.translation.y
-        self.zAcelPID.setpoint = data.translation.z
+        self.pitchPID.setpoint = data.angular.y
+        self.yawPID.setpoint = data.angular.z
+        self.xAcelPID.setpoint = data.linear.x
+        self.yAcelPID.setpoint = data.linear.y
+        self.zAcelPID.setpoint = data.linear.z
 
     def pid(self, data):
         #TODO: Replace with geometry_msg
-        msg = trajectory()
+        msg = Accel()
 
         #add step
         self.yaw_value += self.yawPID(self.currentYaw)
@@ -74,11 +74,11 @@ class simulate_imu_data:
         self.yAcelPID_value += self.yAcelPID(self.currentYaw)
         self.zAcelPID_value += self.zAcelPID(self.currentYaw)
 
-        msg.orientation.pitch = self.yaw_value
-        msg.orientation.yaw = self.pitch_value
-        msg.translation.x = self.xAcelPID_value
-        msg.translation.y = self.yAcelPID_value
-        msg.translation.z = self.zAcelPID_value
+        msg.angular.y = self.yaw_value
+        msg.angular.z = self.pitch_value
+        msg.linear.x = self.xAcelPID_value
+        msg.linear.y = self.yAcelPID_value
+        msg.linear.z = self.zAcelPID_value
 
         self._publisher.publish(msg)
 
