@@ -20,11 +20,13 @@
 """
 
 import rospy
-from wurov.msg import trajectory, io_request, surface_command
+from wurov.msg import io_request, surface_command
+from geometry_msgs.msg import Accel
 
-trajectory_requester = rospy.Publisher('trajectory_request', trajectory, queue_size=3)
+
+trajectory_requester = rospy.Publisher('trajectory_request', Accel, queue_size=3)
 io_requester = rospy.Publisher('io_request', io_request, queue_size=3)
-last_trajectory = trajectory()
+last_trajectory = Accel()
 last_io_requests = surface_command().io_requests
 
 

@@ -22,7 +22,9 @@
 import rospy
 import argparse
 from math import floor
-from wurov.msg import thrustermove, trajectory
+from wurov.msg import thrustermove
+from geometry_msgs.msg import Accel
+
 
 ESC_IS_INIT = False
 Publisher = rospy.Publisher('thruster_commands', thrustermove, queue_size=3)
@@ -235,7 +237,7 @@ def listener():
     rospy.init_node('trajectory_converter')
 
     # Run listener nodes, with the option of happening simultaneously.
-    rospy.Subscriber('trajectory_corrected', trajectory, callback)
+    rospy.Subscriber('trajectory_corrected', Accel, callback)
 
     # Run forever
     rospy.spin()

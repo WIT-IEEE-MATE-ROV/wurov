@@ -27,7 +27,8 @@ import argparse
 import socket
 import os
 
-from wurov.msg import surface_command, io_request, trajectory
+from wurov.msg import surface_command, io_request
+from geometry_msgs.msg import Accel
 
 class joystick_sender:
     def __init__(self):
@@ -207,7 +208,7 @@ class joystick_sender:
             msg.io_requests += (io_request_,)
 
         if joystick.get_button(self.controllerConfig["safetyButton"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
-            msg.desired_trajectory = trajectory()
+            msg.desired_trajectory = Accel()
 
         if not joystick.get_button(self.controllerConfig["boostMode"]):  # 'Boost mode': If this button is pressed, multiply trajectory by 2
             # We implement this by always cutting by 2, and then when the button is pressed, not cutting in half.

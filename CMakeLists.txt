@@ -56,7 +56,6 @@ add_message_files(
   surface_command.msg
   thruster_sensor.msg
   thrustermove.msg
-  trajectory.msg
 )
 
 ## Generate services in the 'srv' folder
