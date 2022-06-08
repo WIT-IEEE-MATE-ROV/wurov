@@ -23,9 +23,12 @@ class bar30:
         self.sensor = ms5837.MS5837_30BA()
         self.sensor.init()
 
-        fluidDensity = rospy.get_param(f"/{rospy.get_name()}/fluidDensity")
-        self.sensor.setFluidDensity(fluidDensity)
-
+        try:
+            fluidDensity = rospy.get_param(f"/{rospy.get_name()}/fluidDensity")
+            self.sensor.setFluidDensity(fluidDensity)
+        except Exception as e:
+            rospy.loginfo("No fluid density specified, using default")
+            
         rospy.Timer(rospy.Duration(publishDuration), self.publisher)
 
         rospy.spin()
