@@ -1,6 +1,4 @@
 <launch>
-<<<<<<< HEAD
-=======
     <arg name="simulate" default="false" doc="'simulate:=true' will publish randomized data to /imu/data_raw and /imu/mag"/>
     <group if="$(eval arg('simulate') == false)">
         <node pkg="wurov" type="imu_data_fxas21002c_fxos8700.py" name="imu_data_raw"/>
@@ -9,7 +7,6 @@
         <node pkg="wurov" type="simulate_imu_data.py" name="imu_data_raw"/>
     </group>
 
->>>>>>> develop
     <node name="imu_filter_madgwick" pkg="imu_filter_madgwick" type="imu_filter_node" >
         <rosparam command="load" file="$(find wurov)/config/imu_filter_madgwick.yaml" />
     </node>
