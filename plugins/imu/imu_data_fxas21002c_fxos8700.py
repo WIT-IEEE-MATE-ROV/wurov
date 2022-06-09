@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 
+import time
+import argparse
 import board;
 import busio;
 import adafruit_fxas21002c;
 import adafruit_fxos8700;
 import rospy
 from sensor_msgs.msg import Imu, MagneticField
-import time
+from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
+
 
 
 class imu_data:
     def __init__(self):
+        parser = argparse.ArgumentParser("Dynamic Reconfig")
+        parser.add_argument('--accel_calibration', type=bool, help='set to true if dynamic reconfig should be enabled')
+        self.args = parser.parse_args(rospy.myargv()[1:])
+
         # init hardwares
         i2c = busio.I2C(board.SCL, board.SDA)
         self.gyroSensor = adafruit_fxas21002c.FXAS21002C(i2c)
@@ -22,9 +29,9 @@ class imu_data:
 
         # init offset values
         self.linear_accel_offset = {
-            'x': 0,
-            'y': 0,
-            'z': 0
+            'x': -0.1,
+            'y': 0.2,
+            'z': 0.47
         }
         self.angular_vel_offset = {
             'x': 0,
@@ -38,7 +45,8 @@ class imu_data:
         }
         
         # Calculate accel offset
-        self.calculate_accel_offset()
+        if self.args.accel_calibration:
+            self.calculate_accel_offset()
 
         # zeros matrix for unknow covariance according to sensor_msgs/Imu doc
         zeros_mat = [0]*9
@@ -105,9 +113,6 @@ class imu_data:
         self.linear_accel_offset['x'] = sum(x)/len(x)
         self.linear_accel_offset['y'] = sum(y)/len(y)
         self.linear_accel_offset['z'] = sum(z)/len(z) + 9.8
-        
-
-
 
         
 if __name__ == '__main__':
