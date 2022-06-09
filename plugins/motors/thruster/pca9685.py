@@ -26,6 +26,8 @@ from wurov.msg import thruster_sensor, thrustermove, arbitrary_pca_commands
 from threading import Thread
 from board import SCL, SDA
 import busio
+from std_msgs.msg import Bool
+
 # The thruster_dictionary takes sensible thruster names and turns them into PCA channels.
 # We default to -1 as a flag value.
 thruster_dictionary = {
@@ -130,6 +132,9 @@ def init_thrusters(init_sequence):
             rospy.logerr("Error cause: " + str(e))
 
     rospy.loginfo("Initialized thrusters!")
+    initPub = rospy.Publisher("thruster_init", Bool, queue_size=10,  latch=True)
+    initPub.publish(True) #Send message that thrusters are init
+
 
 
 def move_callback(data):
