@@ -1,7 +1,10 @@
 <launch>
 
     <!-- Start collecting IMU data and filter it -->
-    <include file="$(find wurov)/launch/imu_filter_madgwick.launch" />
+    <arg name="simulate" default="false" doc="'simulate:=true' will publish randomized data to /imu/data_raw and /imu/mag"/>
+    <include file="$(find wurov)/launch/imu_filter_madgwick.launch">
+        <arg name="simulate" value="$(arg simulate)" /> 
+    </include>
 
     <node name="command_receiver" pkg="wurov" type="command_receiver.py" args="" />
     <node name="thruster_converter" pkg="wurov" type="vector_trajectory_converter.py" args="" />
