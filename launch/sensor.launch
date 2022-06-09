@@ -1,0 +1,8 @@
+<launch>
+    <node name="bar30" pkg="wurov" type="bar30.py">
+        <rosparam>
+            rate: 5
+            fluidDensity: 997
+        </rosparam>
+    </node>
+</launch>
