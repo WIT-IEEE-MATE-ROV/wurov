@@ -16,3 +16,7 @@ opencv-python
 numpy
 rospy
 simple-pid
+bluerobotics-tsys01
+python-smbus
+bluerobotics-ping
+

@@ -1,0 +1,9 @@
+<launch>
+    <node name="ping360" pkg="wurov" type="ping360.py">
+        <rosparam>
+            rate: 5
+            interface: "/dev/ttyUSB0"
+            baudrate: 115200
+        </rosparam>
+    </node>
+</launch>
