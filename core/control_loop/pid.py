@@ -6,12 +6,14 @@ from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Accel
 import argparse
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
-import time
+from std_msgs.msg import Bool
 
 class simulate_imu_data:
     def __init__(self):  
         rospy.init_node('pid', anonymous=True)
-        time.sleep(15) #sleep for init cycle
+
+        rospy.wait_for_message("/thruster_init", Bool) #Do not start until init verification is recieved
+
         parser = argparse.ArgumentParser("Dynamic Reconfig")
         parser.add_argument('--dynamic_reconfig', type=bool, help='set to true if dynamic reconfig should be enabled')
         self.args = parser.parse_args(rospy.myargv()[1:])
