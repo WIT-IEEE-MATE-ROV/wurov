@@ -74,7 +74,7 @@ class imu_data:
         self.imu_msg.header.frame_id = 'base_link'
         self.imu_msg.linear_acceleration.x = accel_x - self.linear_accel_offset['x']
         self.imu_msg.linear_acceleration.y = accel_y - self.linear_accel_offset['y']
-        self.imu_msg.linear_acceleration.z = -accel_z  - self.linear_accel_offset['z']
+        self.imu_msg.linear_acceleration.z = -accel_z  + self.linear_accel_offset['z']
         self.imu_msg.angular_velocity.x = ang_x - self.angular_vel_offset['x']
         self.imu_msg.angular_velocity.y = ang_y - self.angular_vel_offset['y']
         self.imu_msg.angular_velocity.z = ang_z - self.angular_vel_offset['z']
@@ -102,9 +102,9 @@ class imu_data:
             y.append(accel_y)
             z.append(accel_z)
             time.sleep(period)
-        self.linear_accel_offset['x'] = sum(x)/len(x) + 9.8
+        self.linear_accel_offset['x'] = sum(x)/len(x)
         self.linear_accel_offset['y'] = sum(y)/len(y)
-        self.linear_accel_offset['z'] = sum(z)/len(z)
+        self.linear_accel_offset['z'] = sum(z)/len(z) + 9.8
         
 
 
