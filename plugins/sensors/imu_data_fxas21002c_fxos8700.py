@@ -6,6 +6,7 @@ import adafruit_fxas21002c;
 import adafruit_fxos8700;
 import rospy
 from sensor_msgs.msg import Imu, MagneticField
+import time
 
 
 class imu_data:
@@ -15,8 +16,29 @@ class imu_data:
         self.gyroSensor = adafruit_fxas21002c.FXAS21002C(i2c)
         self.sensor = adafruit_fxos8700.FXOS8700(i2c)
 
+        # init messages
         self.imu_msg = Imu()
         self.mag_msg = MagneticField()
+
+        # init offset values
+        self.linear_accel_offset = {
+            'x': 0,
+            'y': 0,
+            'z': 0
+        }
+        self.angular_vel_offset = {
+            'x': 0,
+            'y': 0,
+            'z': 0
+        }
+        self.magnetic_field_offset = {
+            'x': 0,
+            'y': 0,
+            'z': 0
+        }
+        
+        # Calculate accel offset
+        self.calculate_accel_offset()
 
         # zeros matrix for unknow covariance according to sensor_msgs/Imu doc
         zeros_mat = [0]*9
@@ -50,24 +72,43 @@ class imu_data:
         # Imu msg
         self.imu_msg.header.stamp = current_time
         self.imu_msg.header.frame_id = 'base_link'
-        self.imu_msg.linear_acceleration.x = accel_x
-        self.imu_msg.linear_acceleration.y = accel_y
-        self.imu_msg.linear_acceleration.z = -accel_z 
-        self.imu_msg.angular_velocity.x = ang_x
-        self.imu_msg.angular_velocity.y = ang_y
-        self.imu_msg.angular_velocity.z = ang_z
+        self.imu_msg.linear_acceleration.x = accel_x - self.linear_accel_offset['x']
+        self.imu_msg.linear_acceleration.y = accel_y - self.linear_accel_offset['y']
+        self.imu_msg.linear_acceleration.z = -accel_z  - self.linear_accel_offset['z']
+        self.imu_msg.angular_velocity.x = ang_x - self.angular_vel_offset['x']
+        self.imu_msg.angular_velocity.y = ang_y - self.angular_vel_offset['y']
+        self.imu_msg.angular_velocity.z = ang_z - self.angular_vel_offset['z']
 
         # Mag msg
         self.mag_msg.header.stamp = current_time
         self.mag_msg.header.frame_id = 'base_link'
-        self.mag_msg.magnetic_field.x = mag_x
-        self.mag_msg.magnetic_field.y = mag_y
-        self.mag_msg.magnetic_field.z = mag_z
+        self.mag_msg.magnetic_field.x = mag_x - self.magnetic_field_offset['x']
+        self.mag_msg.magnetic_field.y = mag_y - self.magnetic_field_offset['y']
+        self.mag_msg.magnetic_field.z = mag_z - self.magnetic_field_offset['z']
 
         # publish msgs
         self.imu_pub.publish(self.imu_msg)
         self.mag_pub.publish(self.mag_msg)
 
+    def calculate_accel_offset(self, duration=2, sampling_rate=10):
+        duration = duration + time.time()
+        period = 1/sampling_rate
+        x = []
+        y = []
+        z = []
+        while time.time() < duration:
+            accel_y, accel_z, accel_x = self.sensor.accelerometer                   # in m/s^2
+            x.append(accel_x)
+            y.append(accel_y)
+            z.append(accel_z)
+            time.sleep(period)
+        self.linear_accel_offset['x'] = sum(x)/len(x) + 9.8
+        self.linear_accel_offset['y'] = sum(y)/len(y)
+        self.linear_accel_offset['z'] = sum(z)/len(z)
+        
 
+
+
+        
 if __name__ == '__main__':
     imu_data()
