@@ -23,15 +23,25 @@ class imu_data:
         self.gyroSensor = adafruit_fxas21002c.FXAS21002C(i2c)
         self.sensor = adafruit_fxos8700.FXOS8700(i2c)
 
+        # imu_filter_madgwick input topics
+        rospy.init_node('imu_raw_data', anonymous=True)
+        self.imu_pub = rospy.Publisher('imu/data_raw', Imu, queue_size=3)
+        self.mag_pub = rospy.Publisher('imu/mag', MagneticField, queue_size=3)
+        self.imu_no_offset = rospy.Publisher('imu/no_offset_data', Imu, queue_size=3)
+
         # init messages
         self.imu_msg = Imu()
         self.mag_msg = MagneticField()
+        self.no_offset = Imu()
 
         # init offset values
         self.linear_accel_offset = {
-            'x': -0.1,
-            'y': 0.2,
+            'x': 0.2,
+            'y': -0.15,
             'z': -0.47
+            # 'x': 0,
+            # 'y': 0,
+            # 'z': 0
         }
         self.angular_vel_offset = {
             'x': 0,
@@ -53,11 +63,6 @@ class imu_data:
         self.imu_msg.orientation_covariance = zeros_mat
         self.imu_msg.angular_velocity_covariance = zeros_mat
         self.imu_msg.linear_acceleration_covariance = zeros_mat
-
-        # imu_filter_madgwick input topics
-        rospy.init_node('imu_raw_data', anonymous=True)
-        self.imu_pub = rospy.Publisher('imu/data_raw', Imu, queue_size=3)
-        self.mag_pub = rospy.Publisher('imu/mag', MagneticField, queue_size=3)
 
         rospy.Timer(rospy.Duration(0.1), self.read_imu)
 
@@ -86,6 +91,16 @@ class imu_data:
         self.imu_msg.angular_velocity.x = ang_x - self.angular_vel_offset['x']
         self.imu_msg.angular_velocity.y = ang_y - self.angular_vel_offset['y']
         self.imu_msg.angular_velocity.z = ang_z - self.angular_vel_offset['z']
+
+        # Imu no offset msg
+        self.no_offset.header.stamp = current_time
+        self.no_offset.header.frame_id = 'base_link'
+        self.no_offset.linear_acceleration.x = accel_x - self.linear_accel_offset['x']
+        self.no_offset.linear_acceleration.y = accel_y - self.linear_accel_offset['y']
+        self.no_offset.linear_acceleration.z = -abs(accel_z  - self.linear_accel_offset['z'])     # negative abs is to ensure it's always -9.8 m/s initally
+        self.no_offset.angular_velocity.x = ang_x - self.angular_vel_offset['x']
+        self.no_offset.angular_velocity.y = ang_y - self.angular_vel_offset['y']
+        self.no_offset.angular_velocity.z = ang_z - self.angular_vel_offset['z']
 
         # Mag msg
         self.mag_msg.header.stamp = current_time
