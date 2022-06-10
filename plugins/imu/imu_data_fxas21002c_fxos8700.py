@@ -31,7 +31,7 @@ class imu_data:
         self.linear_accel_offset = {
             'x': -0.1,
             'y': 0.2,
-            'z': 0.47
+            'z': -0.47
         }
         self.angular_vel_offset = {
             'x': 0,
@@ -45,8 +45,8 @@ class imu_data:
         }
         
         # Calculate accel offset
-        if self.args.accel_calibration:
-            self.calculate_accel_offset()
+        # if self.args.accel_calibration:
+        #     self.calculate_accel_offset()
 
         # zeros matrix for unknow covariance according to sensor_msgs/Imu doc
         zeros_mat = [0]*9
@@ -82,7 +82,7 @@ class imu_data:
         self.imu_msg.header.frame_id = 'base_link'
         self.imu_msg.linear_acceleration.x = accel_x - self.linear_accel_offset['x']
         self.imu_msg.linear_acceleration.y = accel_y - self.linear_accel_offset['y']
-        self.imu_msg.linear_acceleration.z = -accel_z  + self.linear_accel_offset['z']
+        self.imu_msg.linear_acceleration.z = -abs(accel_z  - self.linear_accel_offset['z'])     # negative abs is to ensure it's always -9.8 m/s initally
         self.imu_msg.angular_velocity.x = ang_x - self.angular_vel_offset['x']
         self.imu_msg.angular_velocity.y = ang_y - self.angular_vel_offset['y']
         self.imu_msg.angular_velocity.z = ang_z - self.angular_vel_offset['z']
@@ -112,7 +112,7 @@ class imu_data:
             time.sleep(period)
         self.linear_accel_offset['x'] = sum(x)/len(x)
         self.linear_accel_offset['y'] = sum(y)/len(y)
-        self.linear_accel_offset['z'] = sum(z)/len(z) + 9.8
+        self.linear_accel_offset['z'] = sum(z)/len(z) - 9.8
 
         
 if __name__ == '__main__':
