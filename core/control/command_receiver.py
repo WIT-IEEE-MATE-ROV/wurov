@@ -20,17 +20,18 @@
 """
 
 import rospy
-from wurov.msg import trajectory, io_request, surface_command
+from wurov.msg import io_request, surface_command
+from geometry_msgs.msg import Accel
 
-trajectory_requester = rospy.Publisher('trajectory_request', trajectory, queue_size=3)
+
+trajectory_requester = rospy.Publisher('trajectory_request', Accel, queue_size=3)
 io_requester = rospy.Publisher('io_request', io_request, queue_size=3)
-last_trajectory = trajectory()
+last_trajectory = Accel()
 last_io_requests = surface_command().io_requests
 
 
 def trajectory_content_match(msg1, msg2):
-    return msg1.orientation == msg2.orientation and msg1.translation == msg2.translation
-
+    return msg1.linear == msg2.linear and msg1.angular == msg2.angular
 
 def io_content_match(msg1, msg_list):
     for msg in msg_list:

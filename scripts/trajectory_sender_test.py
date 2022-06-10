@@ -11,12 +11,12 @@ def publisher():
 
     while not rospy.is_shutdown():
         msg = trajectory()
-        msg.orientation.roll = .1
-        msg.orientation.pitch = -.2
-        msg.orientation.yaw = .3
-        msg.translation.x = -.4
-        msg.translation.y = .5
-        msg.translation.z = -.6
+        msg.angular.x = .1
+        msg.angular.y = -.2
+        msg.angular.z = .3
+        msg.linear.x = -.4
+        msg.linear.y = .5
+        msg.linear.z = -.6
 
         pub.publish(msg)
         rate.sleep()

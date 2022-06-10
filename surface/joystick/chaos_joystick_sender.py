@@ -34,6 +34,7 @@ import pygame
 import sys
 import argparse
 import socket
+import time
 from auv.msg import surface_command, io_request, joystick_chaos
 
 
@@ -89,8 +90,8 @@ def different_msg(msg1, msg2):
     if msg1 is None or msg2 is None:
         return True
 
-    return msg1.desired_trajectory.orientation != msg2.desired_trajectory.orientation or \
-           msg1.desired_trajectory.translation != msg2.desired_trajectory.translation or \
+    return msg1.desired_trajectory.angular != msg2.desired_trajectory.angular or \
+           msg1.desired_trajectory.linear != msg2.desired_trajectory.linear or \
            msg1.io_requests != msg2.io_requests
 
 
@@ -146,10 +147,11 @@ if __name__ == '__main__':
             lever_axis = joystick.get_axis(3) + shift_lever_correction  # Lever: 1 is full down, -1 is full up
 
             msg = surface_command()
-            msg.desired_trajectory.translation.x = -1 * horizontal_axis * magnitude_horizontal_correction
-            msg.desired_trajectory.translation.y = vertical_axis  * magnitude_vertical_correction
-            msg.desired_trajectory.translation.z = -1 * lever_axis * magnitude_lever_correction
-            msg.desired_trajectory.orientation.yaw = -1 * twist_axis * magnitude_twist_correction
+            msg.header.stamp = rospy.Time.now()
+            msg.desired_trajectory.linear.x = -1 * horizontal_axis * magnitude_horizontal_correction
+            msg.desired_trajectory.linear.y = vertical_axis  * magnitude_vertical_correction
+            msg.desired_trajectory.linear.z = -1 * lever_axis * magnitude_lever_correction
+            msg.desired_trajectory.angular.z = -1 * twist_axis * magnitude_twist_correction
 
             msg = config.simulate_peripherals.handle_peripherals(joystick, msg)
             if different_msg(lastmsg, msg):
