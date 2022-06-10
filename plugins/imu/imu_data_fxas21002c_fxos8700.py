@@ -27,21 +27,18 @@ class imu_data:
         rospy.init_node('imu_raw_data', anonymous=True)
         self.imu_pub = rospy.Publisher('imu/data_raw', Imu, queue_size=3)
         self.mag_pub = rospy.Publisher('imu/mag', MagneticField, queue_size=3)
-        self.imu_no_offset = rospy.Publisher('imu/no_offset_data', Imu, queue_size=3)
+        self.imu_no_offset_pub = rospy.Publisher('imu/data_no_offset', Imu, queue_size=3)
 
         # init messages
         self.imu_msg = Imu()
         self.mag_msg = MagneticField()
-        self.no_offset = Imu()
+        self.no_offset_msg = Imu()
 
         # init offset values
         self.linear_accel_offset = {
-            'x': 0.2,
-            'y': -0.15,
+            'x': 0.25,
+            'y': -0.03,
             'z': -0.47
-            # 'x': 0,
-            # 'y': 0,
-            # 'z': 0
         }
         self.angular_vel_offset = {
             'x': 0,
@@ -93,14 +90,14 @@ class imu_data:
         self.imu_msg.angular_velocity.z = ang_z - self.angular_vel_offset['z']
 
         # Imu no offset msg
-        self.no_offset.header.stamp = current_time
-        self.no_offset.header.frame_id = 'base_link'
-        self.no_offset.linear_acceleration.x = accel_x - self.linear_accel_offset['x']
-        self.no_offset.linear_acceleration.y = accel_y - self.linear_accel_offset['y']
-        self.no_offset.linear_acceleration.z = -abs(accel_z  - self.linear_accel_offset['z'])     # negative abs is to ensure it's always -9.8 m/s initally
-        self.no_offset.angular_velocity.x = ang_x - self.angular_vel_offset['x']
-        self.no_offset.angular_velocity.y = ang_y - self.angular_vel_offset['y']
-        self.no_offset.angular_velocity.z = ang_z - self.angular_vel_offset['z']
+        self.no_offset_msg.header.stamp = current_time
+        self.no_offset_msg.header.frame_id = 'base_link'
+        self.no_offset_msg.linear_acceleration.x = accel_x
+        self.no_offset_msg.linear_acceleration.y = accel_y
+        self.no_offset_msg.linear_acceleration.z = -accel_z
+        self.no_offset_msg.angular_velocity.x = ang_x 
+        self.no_offset_msg.angular_velocity.y = ang_y 
+        self.no_offset_msg.angular_velocity.z = ang_z
 
         # Mag msg
         self.mag_msg.header.stamp = current_time
@@ -112,6 +109,7 @@ class imu_data:
         # publish msgs
         self.imu_pub.publish(self.imu_msg)
         self.mag_pub.publish(self.mag_msg)
+        self.imu_no_offset_pub.publish(self.no_offset_msg)
 
     def calculate_accel_offset(self, duration=2, sampling_rate=10):
         duration = duration + time.time()
