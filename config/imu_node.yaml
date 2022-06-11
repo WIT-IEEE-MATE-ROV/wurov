@@ -1,0 +1,4 @@
+                        # x       y        z            
+linear_accel_offset:    [0.25,  -0.03,  -0.47]
+angular_vel_offset:     [0,         0,      0]
+magnetic_field_offset:  [0,         0,      0]
