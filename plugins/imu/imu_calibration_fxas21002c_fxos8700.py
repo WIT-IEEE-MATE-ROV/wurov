@@ -40,9 +40,9 @@ class ImuCalibration:
         self.mag_offset_msg     = MagneticField()
 
         # init offset values
-        self.linear_accel_offset    = rospy.get_param("linear_accel_offset")
-        self.angular_vel_offset     = rospy.get_param("angular_vel_offset")
-        self.magnetic_field_offset  = rospy.get_param("magnetic_field_offset")
+        self.linear_accel_offset    = rospy.get_param("~linear_accel_offset")
+        self.angular_vel_offset     = rospy.get_param("~angular_vel_offset")
+        self.magnetic_field_offset  = rospy.get_param("~magnetic_field_offset")
 
         rospy.Timer(rospy.Duration(0.1), self.pubish_imu_raw)
         rospy.Timer(rospy.Duration(0.1), self.pubish_mag_raw)
@@ -97,13 +97,13 @@ class ImuCalibration:
         self.imu_offset_msg.header.frame_id        = data.header.frame_id
         self.imu_offset_msg.linear_acceleration.x  = data.linear_acceleration.x - self.linear_accel_offset['x']
         self.imu_offset_msg.linear_acceleration.y  = data.linear_acceleration.y - self.linear_accel_offset['y']
-        self.imu_offset_msg.linear_acceleration.z  = -abs(data.linear_acceleration.z  - self.linear_accel_offset['z'])     # negative absolute is to ensure z-axis is always -9.8 m/s initally
+        self.imu_offset_msg.linear_acceleration.z  = -(abs(data.linear_acceleration.z) - self.linear_accel_offset['z'])     # negative absolute is to ensure z-axis is always -9.8 m/s initally
         self.imu_offset_msg.angular_velocity.x     = data.angular_velocity.x - self.angular_vel_offset['x']
         self.imu_offset_msg.angular_velocity.y     = data.angular_velocity.y - self.angular_vel_offset['y']
         self.imu_offset_msg.angular_velocity.z     = data.angular_velocity.z - self.angular_vel_offset['z']
         self.imu_offset_pub.publish(self.imu_offset_msg)
 
-    def sensor_data_over_period(self, sensor, duration=2, sampling_rate=10):
+    def sensor_data_over_period(self, sensor, duration=2, sampling_rate=10) -> dict:
         duration = rospy.Duration(duration) + rospy.Time.now()
         period   = 1/sampling_rate
         data = {

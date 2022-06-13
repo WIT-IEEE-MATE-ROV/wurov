@@ -26,9 +26,9 @@ class imu_data:
         self.mag_msg = MagneticField()
         
         # init offset values
-        self.linear_accel_offset    = rospy.get_param("linear_accel_offset")
-        self.angular_vel_offset     = rospy.get_param("angular_vel_offset")
-        self.magnetic_field_offset  = rospy.get_param("magnetic_field_offset")
+        self.linear_accel_offset    = rospy.get_param("~linear_accel_offset")
+        self.angular_vel_offset     = rospy.get_param("~angular_vel_offset")
+        self.magnetic_field_offset  = rospy.get_param("~magnetic_field_offset")
 
         # zeros matrix for unknow covariance according to sensor_msgs/Imu doc
         zeros_mat = [0]*9
@@ -54,7 +54,7 @@ class imu_data:
         self.imu_msg.header.frame_id        = 'base_link'
         self.imu_msg.linear_acceleration.x  = accel_x - self.linear_accel_offset['x']
         self.imu_msg.linear_acceleration.y  = accel_y - self.linear_accel_offset['y']
-        self.imu_msg.linear_acceleration.z  = -abs(accel_z  - self.linear_accel_offset['z'])     # negative absolute is to ensure z-axis is always -9.8 m/s initally
+        self.imu_msg.linear_acceleration.z  = -(abs(accel_z)  - self.linear_accel_offset['z'])     # negative absolute is to ensure z-axis is always -9.8 m/s initally
         self.imu_msg.angular_velocity.x     = ang_x - self.angular_vel_offset['x']
         self.imu_msg.angular_velocity.y     = ang_y - self.angular_vel_offset['y']
         self.imu_msg.angular_velocity.z     = ang_z - self.angular_vel_offset['z']
