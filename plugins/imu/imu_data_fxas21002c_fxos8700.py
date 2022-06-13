@@ -24,16 +24,11 @@ class imu_data:
         # init messages
         self.imu_msg = Imu()
         self.mag_msg = MagneticField()
-
-        # get offset from rosparam server
-        lao = rospy.get_param("linear_accel_offset")
-        avo = rospy.get_param("angular_vel_offset")
-        mfo = rospy.get_param("magnetic_field_offset")
         
         # init offset values
-        self.linear_accel_offset    = {'x': lao[0], 'y': lao[1], 'z': lao[2]}
-        self.angular_vel_offset     = {'x': avo[0], 'y': avo[1], 'z': avo[2]}
-        self.magnetic_field_offset  = {'x': mfo[0], 'y': mfo[1], 'z': mfo[2]}
+        self.linear_accel_offset    = rospy.get_param("linear_accel_offset")
+        self.angular_vel_offset     = rospy.get_param("angular_vel_offset")
+        self.magnetic_field_offset  = rospy.get_param("magnetic_field_offset")
 
         # zeros matrix for unknow covariance according to sensor_msgs/Imu doc
         zeros_mat = [0]*9
