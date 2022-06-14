@@ -1,5 +1,5 @@
 <launch>
-    <node name="imu_calibration_node" pkg="wurov" type="imu_calibration_fxas21002c_fxos8700.py" >
+    <node name="imu_calibration_node" pkg="wurov" type="imu_calibration_fxas21002c_fxos8700.py --dynamic_calibration False --accel_calibration True --gyro_calibration False --mag_calibration False" >
         <rosparam command="load" file="$(find wurov)/config/imu_node.yaml"/>
     </node>
 </launch>
