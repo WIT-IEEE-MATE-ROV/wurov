@@ -12,18 +12,18 @@ from wurov.msg import imu_offset
 
 class ImuCalibration:
     def __init__(self) -> None:
-        parser = argparse.ArgumentParser("IMU Calibration")
-
         # NOTE: Only recalibrate IMU when the IMU is oriented correctly and when the vehicle is on a flat surface
-        parser.add_argument('--accel_calibration', type=bool, help='set to true if calibrating Accelerometer')
-        parser.add_argument('--gyro_calibration', type=bool, help='set to true if calibrating Gyroscope')
-        parser.add_argument('--mag_calibration', type=bool, help='set to true if calibrating Magnetometer')
-        parser.add_argument('--dynamic_calibration', type=bool, help='set to true if dynamically calibrating the IMU')
+        # arg_fmt = argparse.RawDescriptionHelpFormatter
+        parser = argparse.ArgumentParser("IMU Calibration")
+        parser.add_argument('--accel_calibration', type=bool, default=True, help='set to true if calibrating Accelerometer')
+        parser.add_argument('--gyro_calibration', type=bool, default=True, help='set to true if calibrating Gyroscope')
+        parser.add_argument('--mag_calibration', type=bool, default=False, help='set to true if calibrating Magnetometer')
+        parser.add_argument('--dynamic_calibration', type=bool, default=False, help='set to true if dynamically calibrating the IMU')
         self.args = parser.parse_args(rospy.myargv()[1:])
 
 
         # imu_filter_madgwick input topics
-        rospy.init_node('imu_calibration', anonymous=True)
+        rospy.init_node('imu_calibration', anonymous=True, log_level=rospy.DEBUG)
         self.imu_raw_pub    = rospy.Publisher('imu/data_no_offsets', Imu, queue_size=3)
         self.mag_raw_pub    = rospy.Publisher('imu/mag_no_offsets', MagneticField, queue_size=3)
         self.imu_pub = rospy.Publisher('imu/data_with_offsets', Imu, queue_size=3)
@@ -43,17 +43,21 @@ class ImuCalibration:
         self.magnetic_field_offset  = rospy.get_param("~magnetic_field_offset")
         self.imu_offset = imu_offset()
 
-        if self.args.dynamic_calibration:
-            pass
-        else:
-            if self.args.accel_calibration:
-                self.calculate_accel_offset(self.data['accel'])
-            if self.args.gyro_calibration:
-                self.calculate_angular_offset(self.data['ang'])
-            if self.args.mag_calibration:
-                self.calculate_mag_offset(self.data['mag'])
-            self.write_offsets_to_param()
-            self.imu.set_imu_offsets(self.linear_accel_offset, self.angular_vel_offset, self.magnetic_field_offset)
+        rospy.loginfo(self.args.accel_calibration)
+        rospy.loginfo(self.args.gyro_calibration)
+        rospy.loginfo(self.args.mag_calibration)
+
+        # if self.args.dynamic_calibration:
+        #     pass
+        # else:
+        if type(self.args.accel_calibration) == type(True):
+            self.calculate_accel_offset(self.data['accel'])
+        if self.args.gyro_calibration == True:
+            self.calculate_angular_offset(self.data['ang'])
+        if self.args.mag_calibration == True:
+            self.calculate_mag_offset(self.data['mag'])
+        self.write_offsets_to_param()
+        self.imu.set_imu_offsets(self.linear_accel_offset, self.angular_vel_offset, self.magnetic_field_offset)
 
         rospy.Timer(rospy.Duration(0.1), self.publish_all)
         rospy.spin()
