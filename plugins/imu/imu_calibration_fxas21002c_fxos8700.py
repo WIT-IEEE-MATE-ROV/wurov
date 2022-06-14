@@ -8,6 +8,7 @@ import rospy
 from sensor_msgs.msg import Imu, MagneticField
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 from imu_data_fxas21002c_fxos8700 import ImuData
+from wurov.msg import imu_offset
 
 class ImuCalibration:
     def __init__(self) -> None:
@@ -27,8 +28,9 @@ class ImuCalibration:
         self.mag_raw_pub    = rospy.Publisher('imu/mag_no_offsets', MagneticField, queue_size=3)
         self.imu_pub = rospy.Publisher('imu/data_with_offsets', Imu, queue_size=3)
         self.mag_pub = rospy.Publisher('imu/mag_with_offsets', MagneticField, queue_size=3)
-        self.offset_pub = rospy.Publisher('imu/offsets', MagneticField, queue_size=3)
+        self.offset_pub = rospy.Publisher('imu/offsets', imu_offset, queue_size=3)
         
+        # ImuData to access sensor data
         self.imu = ImuData(publish=False)
 
         # Getting data
@@ -39,6 +41,7 @@ class ImuCalibration:
         self.linear_accel_offset    = rospy.get_param("~linear_accel_offset")
         self.angular_vel_offset     = rospy.get_param("~angular_vel_offset")
         self.magnetic_field_offset  = rospy.get_param("~magnetic_field_offset")
+        self.imu_offset = imu_offset()
 
         if self.args.dynamic_calibration:
             pass
@@ -61,11 +64,27 @@ class ImuCalibration:
         imu_no_offset_msg  = self.imu.populate_imu_raw(current_time)
         mag_msg            = self.imu.populate_mag_corrected(current_time)
         mag_no_offset_msg  = self.imu.populate_mag_raw(current_time)
+        imu_offset         = self.populate_imu_offset(current_time)
 
         self.imu_pub.publish(imu_msg)
         self.mag_pub.publish(mag_msg)
         self.imu_raw_pub.publish(imu_no_offset_msg)
         self.mag_raw_pub.publish(mag_no_offset_msg)
+        self.offset_pub.publish(imu_offset)
+    
+    def populate_imu_offset(self, time):
+        self.imu_offset.header.stamp = time
+        self.imu_offset.header.frame_id    = 'base_link'
+        self.imu_offset.accel_offset.x  = self.linear_accel_offset['x']
+        self.imu_offset.accel_offset.y  = self.linear_accel_offset['y']
+        self.imu_offset.accel_offset.z  = self.linear_accel_offset['z']
+        self.imu_offset.ang_offset.x    = self.angular_vel_offset['x']
+        self.imu_offset.ang_offset.y    = self.angular_vel_offset['y']
+        self.imu_offset.ang_offset.z    = self.angular_vel_offset['z']
+        self.imu_offset.mag_offset.x    = self.magnetic_field_offset['x']
+        self.imu_offset.mag_offset.y    = self.magnetic_field_offset['y']
+        self.imu_offset.mag_offset.z    = self.magnetic_field_offset['z']
+        return self.imu_offset
 
     def sensor_data_over_period(self, samples_num=20) -> dict:
         accel   = {'x': [], 'y': [], 'z': []}
