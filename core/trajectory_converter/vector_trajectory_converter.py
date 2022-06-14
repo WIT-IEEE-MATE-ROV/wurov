@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -22,7 +22,9 @@
 import rospy
 import argparse
 from math import floor
-from auv.msg import thrustermove, trajectory
+from wurov.msg import thrustermove
+from geometry_msgs.msg import Accel
+
 
 ESC_IS_INIT = False
 Publisher = rospy.Publisher('thruster_commands', thrustermove, queue_size=3)
@@ -205,12 +207,12 @@ def callback(data):
     movematrix = [[0, 0, 0, 0], [0, 0, 0, 0]]
 
     # Take the roll, pitch, etc, data and turn it into corresponding matrix values
-    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.orientation.roll, const_array_roll))
-    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.orientation.pitch, const_array_pitch))
-    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.orientation.yaw, const_array_cut))
-    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.translation.x, const_array_x))
-    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.translation.y, const_array_y))
-    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.translation.z, const_array_z))
+    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.angular.x, const_array_roll))
+    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.angular.y, const_array_pitch))
+    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.angular.z, const_array_cut))
+    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.linear.x, const_array_x))
+    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.linear.y, const_array_y))
+    movematrix = add_array_elements(movematrix, multiply_array_by_constant(data.linear.z, const_array_z))
 
     # Now that the matrix exists, it needs to be corrected for ESC/thruster
     # weirdness, normalized, and converted to 0-1 range that the thrusters need.
@@ -235,7 +237,7 @@ def listener():
     rospy.init_node('trajectory_converter')
 
     # Run listener nodes, with the option of happening simultaneously.
-    rospy.Subscriber('trajectory_corrected', trajectory, callback)
+    rospy.Subscriber('trajectory_corrected', Accel, callback)
 
     # Run forever
     rospy.spin()

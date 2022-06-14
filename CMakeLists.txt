@@ -53,14 +53,9 @@ add_message_files(
   arbitrary_pca_commands.msg
   io_request.msg
   joystick_chaos.msg
-  ninedof.msg
-  orientation.msg
   surface_command.msg
   thruster_sensor.msg
   thrustermove.msg
-  trajectory.msg
-  translation.msg
-  magnetometer.msg
 )
 
 ## Generate services in the 'srv' folder

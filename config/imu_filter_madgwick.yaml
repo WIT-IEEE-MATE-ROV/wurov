@@ -1,0 +1,17 @@
+# These params need tunings
+orientation_stddev: 0.001
+gain: 0.1
+zeta: 0.001
+
+publish_tf: true
+
+# REP103: For ENU type IMUs, the orientation of the world frame is x-east, y-north, z-up, relative to magnetic north.
+world_frame: enu
+
+# Use magnetic field data for data fusion
+use_mag: true
+
+# If set to true, subscribe to the /imu/mag topic as a sensor_msgs/MagneticField message
+use_magnetic_field_msg: true
+
+remove_gravity_vector: true

@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+#! DEPRECATED, FOR VIEWING PURPOSES ONLY
 
 """
 
@@ -20,7 +22,7 @@
 """
 
 import rospy
-from auv.msg import ninedof, trajectory
+from wurov.msg import ninedof, trajectory
 
 Publisher = rospy.Publisher('trajectory_corrected', trajectory, queue_size=3)
 history = []
