@@ -35,11 +35,13 @@ class simulate_imu_data:
 
         rospy.Timer(rospy.Duration(0.1), self.pid)
 
-        self.yawPID = PID(0.3, 0, 0)
-        self.pitchPID = PID(0.3, 0, 0)
-        self.xAcelPID = PID(0.3, 0, 0)
-        self.yAcelPID = PID(0.3, 0, 0)
-        self.zAcelPID = PID(0.3, 0, 0)
+        #NOTE: This might be needed for test not really sure
+        #TODO: take this out 
+        #self.yawPID = PID(0, 0, 0)
+        #self.pitchPID = PID(0, 0, 0)
+        #self.xAcelPID = PID(0, 0, 0)
+        #self.yAcelPID = PID(0, 0, 0)
+        #self.zAcelPID = PID(0, 0, 0)
 
         #Set initial trajectory_request to 0
         self.yaw_value = 0

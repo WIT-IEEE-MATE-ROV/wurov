@@ -5,6 +5,8 @@ import numpy as np
 from brping import Ping360
 from sensor_msgs.msg import LaserScan
 import math
+import json
+from rospy_message_converter import message_converter
 
 class ping360:
     def __init__(self):
@@ -40,6 +42,18 @@ class ping360:
         for val in range(20):
             scan = self.sensor.transmitAngle(val * 20) #angle in gradians
             data = scan.data
+
+            #NOTE: This is temp for debugging, stores raw data in sonar_raw.json
+            with open("sonar_raw.json", "r") as file:
+                raw_data = json.load(file)
+
+            raw_data.append(raw_data)
+
+            with open("sonar_raw.json", "w") as file:
+                json.dump(raw_data, file)
+
+            self._publisher.publish(msg)
+
             msg.ranges.append(-1)
             for detectedIntensity in data:
                 if detectedIntensity >= 200:
@@ -49,6 +63,15 @@ class ping360:
                         msg.ranges.pop()
                         msg.ranges.append(rangeVal)
                         break
+
+        #NOTE: This is temp for debugging, stores sonar msg as json for later
+        with open("sonar.json", "r") as file:
+            msg_data = json.load(file)
+
+        msg_data.append(message_converter.convert_ros_message_to_dictionary(msg))
+
+        with open("sonar.json", "w") as file:
+            json.dump(msg_data, file)
 
         self._publisher.publish(msg)
 
