@@ -47,17 +47,17 @@ class ImuCalibration:
         rospy.loginfo(self.args.gyro_calibration)
         rospy.loginfo(self.args.mag_calibration)
 
-        # if self.args.dynamic_calibration:
-        #     pass
-        # else:
-        if type(self.args.accel_calibration) == type(True):
-            self.calculate_accel_offset(self.data['accel'])
-        if self.args.gyro_calibration == True:
-            self.calculate_angular_offset(self.data['ang'])
-        if self.args.mag_calibration == True:
-            self.calculate_mag_offset(self.data['mag'])
-        self.write_offsets_to_param()
-        self.imu.set_imu_offsets(self.linear_accel_offset, self.angular_vel_offset, self.magnetic_field_offset)
+        if self.args.dynamic_calibration:
+            pass
+        else:
+            if type(self.args.accel_calibration) == type(True):
+                self.calculate_accel_offset(self.data['accel'])
+            if self.args.gyro_calibration == True:
+                self.calculate_angular_offset(self.data['ang'])
+            if self.args.mag_calibration == True:
+                self.calculate_mag_offset(self.data['mag'])
+            self.write_offsets_to_param()
+            self.imu.set_imu_offsets(self.linear_accel_offset, self.angular_vel_offset, self.magnetic_field_offset)
 
         rospy.Timer(rospy.Duration(0.1), self.publish_all)
         rospy.spin()
