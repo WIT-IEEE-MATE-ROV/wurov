@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import time
 import argparse
-import board;
-import busio;
-import adafruit_fxas21002c;
-import adafruit_fxos8700;
+from asyncio import current_task
+from calendar import c
+from time import time
 import rospy
 from sensor_msgs.msg import Imu, MagneticField
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
+from imu_data_fxas21002c_fxos8700 import ImuData
 
 class ImuCalibration:
     def __init__(self) -> None:
@@ -21,129 +20,89 @@ class ImuCalibration:
         parser.add_argument('--dynamic_calibration', type=bool, help='set to true if dynamically calibrating the IMU')
         self.args = parser.parse_args(rospy.myargv()[1:])
 
-        # init hardwares
-        i2c             = busio.I2C(board.SCL, board.SDA)
-        self.gyroSensor = adafruit_fxas21002c.FXAS21002C(i2c)
-        self.sensor     = adafruit_fxos8700.FXOS8700(i2c)
+        self.imu = ImuData(publish=False)
 
         # imu_filter_madgwick input topics
         rospy.init_node('imu_calibration', anonymous=True)
         self.imu_raw_pub    = rospy.Publisher('imu/data_no_offsets', Imu, queue_size=3)
-        self.imu_offset_pub = rospy.Publisher('imu/data_with_offsets', Imu, queue_size=3)
+        self.imu_pub = rospy.Publisher('imu/data_with_offsets', Imu, queue_size=3)
         self.mag_raw_pub    = rospy.Publisher('imu/mag_no_offsets', MagneticField, queue_size=3)
-        self.mag_offset_pub = rospy.Publisher('imu/mag_with_offsets', MagneticField, queue_size=3)
+        self.mag_pub = rospy.Publisher('imu/mag_with_offsets', MagneticField, queue_size=3)
 
-        # init messages
-        self.imu_msg            = Imu()
-        self.imu_offset_msg     = Imu()
-        self.mag_msg            = MagneticField()
-        self.mag_offset_msg     = MagneticField()
+        # Getting data
+        self.data = self.sensor_data_over_period()
 
         # init offset values
         self.linear_accel_offset    = rospy.get_param("~linear_accel_offset")
         self.angular_vel_offset     = rospy.get_param("~angular_vel_offset")
         self.magnetic_field_offset  = rospy.get_param("~magnetic_field_offset")
 
-        rospy.Timer(rospy.Duration(0.1), self.pubish_imu_raw)
-        rospy.Timer(rospy.Duration(0.1), self.pubish_mag_raw)
+        if self.args.dynamic_calibration:
+            pass
+        else:
+            if self.args.accel_calibration:
+                self.calculate_accel_offset(self.data['accel'])
+            if self.args.gyro_calibration:
+                self.calculate_angular_offset(self.data['ang'])
+            if self.args.mag_calibration:
+                self.calculate_mag_offset(self.data['mag'])
+            self.write_offsets_to_param()
+            self.imu.set_imu_offsets(self.linear_accel_offset, self.angular_vel_offset, self.magnetic_field_offset)
 
-        rospy.Subscriber('imu/data_no_offsets', Imu, self.pubish_imu_offset)
-        rospy.Subscriber('imu/mag_no_offsets', MagneticField, self.pubish_mag_offset)
-
+        rospy.Timer(rospy.Duration(0.1), self.publish_all)
         rospy.spin()
 
-    def pubish_imu_raw(self, data):
-        # REP103:
-        # +x: forward
-        # +y: left
-        # +z: up
+    def publish_all(self, event):
+        current_time = rospy.Time.now()
+        imu_msg            = self.imu.populate_imu_corrected(current_time)
+        imu_no_offset_msg  = self.imu.populate_imu_raw(current_time)
+        mag_msg            = self.imu.populate_mag_corrected(current_time)
+        mag_no_offset_msg  = self.imu.populate_mag_raw(current_time)
 
-        # Sensor readings
-        accel_y, accel_z, accel_x   = self.sensor.accelerometer                   # in m/s^2
-        ang_y, ang_z, ang_x         = self.gyroSensor.gyroscope                   # in Radians/s
-        # Populate IMU message
-        self.imu_msg.header.stamp            = rospy.Time.now()
-        self.imu_msg.header.frame_id         = 'base_link'
-        self.imu_msg.linear_acceleration.x   = accel_x
-        self.imu_msg.linear_acceleration.y   = accel_y
-        self.imu_msg.linear_acceleration.z   = -accel_z
-        self.imu_msg.angular_velocity.x      = ang_x 
-        self.imu_msg.angular_velocity.y      = ang_y 
-        self.imu_msg.angular_velocity.z      = ang_z
-        # publish msgs
-        self.imu_raw_pub.publish(self.imu_msg)
+        self.imu_pub.publish(imu_msg)
+        self.imu_raw_pub.publish(imu_no_offset_msg)
+        self.mag_pub.publish(mag_msg)
+        self.mag_raw_pub.publish(mag_no_offset_msg)
 
-    def pubish_mag_raw(self, data):
-        # Sensor readings
-        mag_y, mag_z, mag_x = [k/1000000 for k in self.sensor.magnetometer]     # in Tesla
-        # Populate Mag message
-        self.mag_msg.header.stamp       = rospy.Time.now()
-        self.mag_msg.header.frame_id    = 'base_link'
-        self.mag_msg.magnetic_field.x   = mag_x
-        self.mag_msg.magnetic_field.y   = mag_y
-        self.mag_msg.magnetic_field.z   = mag_z
-        self.mag_raw_pub.publish(self.mag_msg)
-
-    def pubish_mag_offset(self, data: MagneticField):
-        self.mag_offset_msg.header.stamp       = data.header.stamp
-        self.mag_offset_msg.header.frame_id    = data.header.frame_id
-        self.mag_offset_msg.magnetic_field.x   = data.magnetic_field.x - self.magnetic_field_offset['x']
-        self.mag_offset_msg.magnetic_field.y   = data.magnetic_field.y - self.magnetic_field_offset['y']
-        self.mag_offset_msg.magnetic_field.z   = data.magnetic_field.z - self.magnetic_field_offset['z']
-        self.mag_offset_pub.publish(self.mag_offset_msg)
-
-    def pubish_imu_offset(self, data: Imu):
-        self.imu_offset_msg.header.stamp           = data.header.stamp
-        self.imu_offset_msg.header.frame_id        = data.header.frame_id
-        self.imu_offset_msg.linear_acceleration.x  = data.linear_acceleration.x - self.linear_accel_offset['x']
-        self.imu_offset_msg.linear_acceleration.y  = data.linear_acceleration.y - self.linear_accel_offset['y']
-        self.imu_offset_msg.linear_acceleration.z  = -(abs(data.linear_acceleration.z) - self.linear_accel_offset['z'])     # negative absolute is to ensure z-axis is always -9.8 m/s initally
-        self.imu_offset_msg.angular_velocity.x     = data.angular_velocity.x - self.angular_vel_offset['x']
-        self.imu_offset_msg.angular_velocity.y     = data.angular_velocity.y - self.angular_vel_offset['y']
-        self.imu_offset_msg.angular_velocity.z     = data.angular_velocity.z - self.angular_vel_offset['z']
-        self.imu_offset_pub.publish(self.imu_offset_msg)
-
-    def sensor_data_over_period(self, sensor, duration=2, sampling_rate=10) -> dict:
-        duration = rospy.Duration(duration) + rospy.Time.now()
-        period   = 1/sampling_rate
-        data = {
-            'x': [],
-            'y': [],
-            'z': []
-        }
-        while  rospy.Time.now() < duration:
-            sensor_y, sensor_z, sensor_x = sensor
-            data['x'].append(sensor_x)
-            data['y'].append(sensor_y)
-            data['z'].append(sensor_z)
-            rospy.sleep(period)
-        return data
+    def sensor_data_over_period(self, samples_num=20) -> dict:
+        accel   = {'x': [], 'y': [], 'z': []}
+        ang     = {'x': [], 'y': [], 'z': []}
+        mag     = {'x': [], 'y': [], 'z': []}
+        for _ in range(samples_num):
+            raw_imu = self.imu.populate_imu_raw()
+            raw_mag = self.imu.populate_mag_raw()
+            accel['x'].append(raw_imu.linear_acceleration.x)
+            accel['y'].append(raw_imu.linear_acceleration.y)
+            accel['z'].append(raw_imu.linear_acceleration.z)
+            ang['x'].append(raw_imu.angular_velocity.x)
+            ang['y'].append(raw_imu.angular_velocity.y)
+            ang['z'].append(raw_imu.angular_velocity.z)
+            mag['x'].append(raw_mag.magnetic_field.x)
+            mag['y'].append(raw_mag.magnetic_field.y)
+            mag['z'].append(raw_mag.magnetic_field.z)
+        return {'accel': accel, 'ang': ang, 'mag': mag}
         
-    def calculate_accel_offset(self):
-        data = self.sensor_data_over_period(self.sensor.accelerometer)
+    def calculate_accel_offset(self, data):
         self.linear_accel_offset['x'] = sum(data['x'])/len(data['x'])
         self.linear_accel_offset['y'] = sum(data['y'])/len(data['y'])
-        self.linear_accel_offset['z'] = sum(data['z'])/len(data['z']) - 9.8
+        self.linear_accel_offset['z'] = sum(data['z'])/len(data['z']) + 9.8
 
-    def calculate_angular_offset(self):
-        data = self.sensor_data_over_period(self.sensor.gyroscope)
-        self.linear_accel_offset['x'] = sum(data['x'])/len(data['x'])
-        self.linear_accel_offset['y'] = sum(data['y'])/len(data['y'])
-        self.linear_accel_offset['z'] = sum(data['z'])/len(data['z'])
+    def calculate_angular_offset(self, data):
+        self.angular_vel_offset['x'] = sum(data['x'])/len(data['x'])
+        self.angular_vel_offset['y'] = sum(data['y'])/len(data['y'])
+        self.angular_vel_offset['z'] = sum(data['z'])/len(data['z'])
     
     #TODO: figure out what is the normal mag data
-    def calculate_mag_offset(self):
-        data = self.sensor_data_over_period(self.sensor.magnetometer)
-        self.linear_accel_offset['x'] = sum(data['x'])/len(data['x'])
-        self.linear_accel_offset['y'] = sum(data['y'])/len(data['y'])
-        self.linear_accel_offset['z'] = sum(data['z'])/len(data['z'])
-        
+    def calculate_mag_offset(self,data):
+        self.magnetic_field_offset['x'] = sum(data['x'])/len(data['x'])
+        self.magnetic_field_offset['y'] = sum(data['y'])/len(data['y'])
+        self.magnetic_field_offset['z'] = sum(data['z'])/len(data['z'])
+    
+    #TODO: maybe find a way to permanently write to the param server
     def write_offsets_to_param(self):
         rospy.set_param('linear_accel_offset', self.linear_accel_offset)
         rospy.set_param('angular_vel_offset', self.angular_vel_offset)
         rospy.set_param('magnetic_field_offset', self.magnetic_field_offset)
-
-
 
 if __name__=="__main__":
     imu_calibration = ImuCalibration()
