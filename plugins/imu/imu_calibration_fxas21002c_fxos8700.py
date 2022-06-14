@@ -20,19 +20,22 @@ class ImuCalibration:
         parser.add_argument('--dynamic_calibration', type=bool, help='set to true if dynamically calibrating the IMU')
         self.args = parser.parse_args(rospy.myargv()[1:])
 
-        self.imu = ImuData(publish=False)
 
         # imu_filter_madgwick input topics
         rospy.init_node('imu_calibration', anonymous=True)
         self.imu_raw_pub    = rospy.Publisher('imu/data_no_offsets', Imu, queue_size=3)
-        self.imu_pub = rospy.Publisher('imu/data_with_offsets', Imu, queue_size=3)
         self.mag_raw_pub    = rospy.Publisher('imu/mag_no_offsets', MagneticField, queue_size=3)
+        self.imu_pub = rospy.Publisher('imu/data_with_offsets', Imu, queue_size=3)
         self.mag_pub = rospy.Publisher('imu/mag_with_offsets', MagneticField, queue_size=3)
+        self.offset_pub = rospy.Publisher('imu/offsets', MagneticField, queue_size=3)
+        
+        self.imu = ImuData(publish=False)
 
         # Getting data
         self.data = self.sensor_data_over_period()
 
         # init offset values
+        #TODO: Publish this to debug
         self.linear_accel_offset    = rospy.get_param("~linear_accel_offset")
         self.angular_vel_offset     = rospy.get_param("~angular_vel_offset")
         self.magnetic_field_offset  = rospy.get_param("~magnetic_field_offset")
@@ -60,8 +63,8 @@ class ImuCalibration:
         mag_no_offset_msg  = self.imu.populate_mag_raw(current_time)
 
         self.imu_pub.publish(imu_msg)
-        self.imu_raw_pub.publish(imu_no_offset_msg)
         self.mag_pub.publish(mag_msg)
+        self.imu_raw_pub.publish(imu_no_offset_msg)
         self.mag_raw_pub.publish(mag_no_offset_msg)
 
     def sensor_data_over_period(self, samples_num=20) -> dict:
@@ -69,8 +72,9 @@ class ImuCalibration:
         ang     = {'x': [], 'y': [], 'z': []}
         mag     = {'x': [], 'y': [], 'z': []}
         for _ in range(samples_num):
-            raw_imu = self.imu.populate_imu_raw()
-            raw_mag = self.imu.populate_mag_raw()
+            current_time = rospy.Time.now()
+            raw_imu = self.imu.populate_imu_raw(current_time)
+            raw_mag = self.imu.populate_mag_raw(current_time)
             accel['x'].append(raw_imu.linear_acceleration.x)
             accel['y'].append(raw_imu.linear_acceleration.y)
             accel['z'].append(raw_imu.linear_acceleration.z)

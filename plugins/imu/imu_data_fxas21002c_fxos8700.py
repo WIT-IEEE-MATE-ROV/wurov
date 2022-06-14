@@ -50,7 +50,7 @@ class ImuData:
         self.imu_pub.publish(self.imu_msg)
         self.mag_pub.publish(self.mag_msg)
 
-    def populate_imu_corrected(self, time=rospy.Time.now()) -> Imu:
+    def populate_imu_corrected(self, time) -> Imu:
         # Sensor readings
         accel_x, accel_y, accel_z   = self.read_sensor("accelerometer")                   # in m/s^2
         ang_x, ang_y, ang_z         = self.read_sensor("gyroscope")                       # in Radians/s
@@ -59,13 +59,13 @@ class ImuData:
         self.imu_msg.header.frame_id        = 'base_link'
         self.imu_msg.linear_acceleration.x  = accel_x - self.linear_accel_offset['x']
         self.imu_msg.linear_acceleration.y  = accel_y - self.linear_accel_offset['y']
-        self.imu_msg.linear_acceleration.z  = accel_z - self.linear_accel_offset['z']    # negative absolute is to ensure z-axis is always -9.8 m/s initally
+        self.imu_msg.linear_acceleration.z  = accel_z + self.linear_accel_offset['z']
         self.imu_msg.angular_velocity.x     = ang_x - self.angular_vel_offset['x']
         self.imu_msg.angular_velocity.y     = ang_y - self.angular_vel_offset['y']
         self.imu_msg.angular_velocity.z     = ang_z - self.angular_vel_offset['z']
         return self.imu_msg # Optionally return the message
 
-    def populate_mag_corrected(self, time=rospy.Time.now()) -> MagneticField:
+    def populate_mag_corrected(self, time) -> MagneticField:
         # Sensor readings
         mag_x, mag_y, mag_z = [k/1000000 for k in self.read_sensor("magnetometer")]      # in Tesla
         # Populate Mag message
@@ -76,7 +76,7 @@ class ImuData:
         self.mag_msg.magnetic_field.z   = mag_z - self.magnetic_field_offset['z']
         return self.mag_msg # Optionally return the message
 
-    def populate_imu_raw(self, time=rospy.Time.now()) -> Imu:
+    def populate_imu_raw(self, time) -> Imu:
         # Sensor readings
         accel_x, accel_y, accel_z   = self.read_sensor("accelerometer")                         # in m/s^2
         ang_x, ang_y, ang_z         = self.read_sensor("gyroscope")                             # in Radians/s
@@ -91,7 +91,7 @@ class ImuData:
         self.imu_raw_msg.angular_velocity.z     = ang_z
         return self.imu_raw_msg # Optionally return the message
     
-    def populate_mag_raw(self, time=rospy.Time.now()) -> MagneticField:
+    def populate_mag_raw(self, time) -> MagneticField:
         # Sensor readings
         mag_x, mag_y, mag_z= [k/1000000 for k in self.read_sensor("magnetometer")]      # in Tesla
         # Populate IMU message
@@ -109,14 +109,10 @@ class ImuData:
         # +y: left
         # +z: up
 
-        # From the board (06/13/2022)
-        # REP103 = Board
-        # +x = -z
-        # +y = x
-        # +z = -y
+        #TODO: Fix this orientation
         if sensor == "accelerometer":
-            sensor_z, sensor_x, sensor_y = self.sensor.accelerometer
-            return -sensor_x, sensor_y, -sensor_z
+            sensor_y, sensor_z, sensor_x = self.sensor.accelerometer
+            return sensor_x, sensor_y, -sensor_z
         #TODO: Fix this orientation
         elif sensor == "magnetometer":
             sensor_y, sensor_z, sensor_x = self.sensor.magnetometer
