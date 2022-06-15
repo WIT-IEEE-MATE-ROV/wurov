@@ -13,7 +13,6 @@ from wurov.msg import imu_offset
 class ImuCalibration:
     def __init__(self) -> None:
         # NOTE: Only recalibrate IMU when the IMU is oriented correctly and when the vehicle is on a flat surface
-        # arg_fmt = argparse.RawDescriptionHelpFormatter
         parser = argparse.ArgumentParser("IMU Calibration")
         parser.add_argument('--accel_calibration', type=bool, default=True, help='set to true if calibrating Accelerometer')
         parser.add_argument('--gyro_calibration', type=bool, default=True, help='set to true if calibrating Gyroscope')
@@ -23,7 +22,7 @@ class ImuCalibration:
 
 
         # imu_filter_madgwick input topics
-        rospy.init_node('imu_calibration', anonymous=True, log_level=rospy.DEBUG)
+        rospy.init_node('imu_calibration', anonymous=True)
         self.imu_raw_pub    = rospy.Publisher('imu/data_no_offsets', Imu, queue_size=3)
         self.mag_raw_pub    = rospy.Publisher('imu/mag_no_offsets', MagneticField, queue_size=3)
         self.imu_pub = rospy.Publisher('imu/data_with_offsets', Imu, queue_size=3)
@@ -37,7 +36,6 @@ class ImuCalibration:
         self.data = self.sensor_data_over_period()
 
         # init offset values
-        #TODO: Publish this to debug
         self.linear_accel_offset    = rospy.get_param("~linear_accel_offset")
         self.angular_vel_offset     = rospy.get_param("~angular_vel_offset")
         self.magnetic_field_offset  = rospy.get_param("~magnetic_field_offset")

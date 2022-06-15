@@ -26,9 +26,9 @@ class ImuData:
         self.mag_raw_msg = MagneticField()
         
         # init offset values
-        self.linear_accel_offset    = rospy.get_param("~linear_accel_offset")
-        self.angular_vel_offset     = rospy.get_param("~angular_vel_offset")
-        self.magnetic_field_offset  = rospy.get_param("~magnetic_field_offset")
+        self.linear_accel_offset    = rospy.get_param("/imu_data_raw/linear_accel_offset")
+        self.angular_vel_offset     = rospy.get_param("/imu_data_raw/angular_vel_offset")
+        self.magnetic_field_offset  = rospy.get_param("/imu_data_raw/magnetic_field_offset")
 
         # zeros matrix for unknow covariance according to sensor_msgs/Imu doc
         zeros_mat = [0]*9
