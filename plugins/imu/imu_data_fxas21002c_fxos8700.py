@@ -59,7 +59,7 @@ class ImuData:
         self.imu_msg.header.frame_id        = 'base_link'
         self.imu_msg.linear_acceleration.x  = accel_x - self.linear_accel_offset['x']
         self.imu_msg.linear_acceleration.y  = accel_y - self.linear_accel_offset['y']
-        self.imu_msg.linear_acceleration.z  = accel_z + self.linear_accel_offset['z']
+        self.imu_msg.linear_acceleration.z  = accel_z - self.linear_accel_offset['z']
         self.imu_msg.angular_velocity.x     = ang_x - self.angular_vel_offset['x']
         self.imu_msg.angular_velocity.y     = ang_y - self.angular_vel_offset['y']
         self.imu_msg.angular_velocity.z     = ang_z - self.angular_vel_offset['z']
@@ -109,7 +109,6 @@ class ImuData:
         # +y: left
         # +z: up
 
-        #TODO: Fix this orientation
         if sensor == "accelerometer":
             sensor_y, sensor_z, sensor_x = self.sensor.accelerometer
             return sensor_x, sensor_y, -sensor_z
