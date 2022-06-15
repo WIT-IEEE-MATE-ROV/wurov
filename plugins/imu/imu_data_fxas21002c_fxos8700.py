@@ -7,6 +7,8 @@ import adafruit_fxas21002c;
 import adafruit_fxos8700;
 import rospy
 from sensor_msgs.msg import Imu, MagneticField
+from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
+
 
 
 
