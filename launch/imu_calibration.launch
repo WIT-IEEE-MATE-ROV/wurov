@@ -1,0 +1,6 @@
+<launch>
+    <node name="imu_calibration_node" pkg="wurov" type="imu_calibration_fxas21002c_fxos8700.py" args="--accel_calibration True --gyro_calibration True" >
+        <rosparam command="load" file="$(find wurov)/config/imu_node.yaml"/>
+    </node>
+</launch>
+<!-- mag_calibration False -->
