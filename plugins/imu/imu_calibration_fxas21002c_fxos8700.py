@@ -12,6 +12,8 @@ from wurov.msg import imu_offset
 
 class ImuCalibration:
     def __init__(self) -> None:
+        SAMPLE_NUM = 50
+
         # NOTE: Only recalibrate IMU when the IMU is oriented correctly and when the vehicle is on a flat surface
         parser = argparse.ArgumentParser("IMU Calibration")
         parser.add_argument('--accel_calibration', type=bool, default=True, help='set to true if calibrating Accelerometer')
@@ -33,7 +35,7 @@ class ImuCalibration:
         self.imu = ImuData(publish=False)
 
         # Getting data
-        self.data = self.sensor_data_over_period()
+        self.data = self.sensor_data_over_period(SAMPLE_NUM)
 
         # init offset values
         self.linear_accel_offset    = rospy.get_param("~linear_accel_offset")
