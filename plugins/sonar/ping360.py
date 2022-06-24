@@ -58,8 +58,8 @@ class ping360:
             for detectedIntensity in data:
                 if detectedIntensity >= 200:
                     detectedIndex = data.index(detectedIntensity)
-                    rangeVal = (1+detectedIndex)  * 1481 * 25e-9 * 80/ 2
-                    if rangeVal > 0.75:
+                    rangeVal = (1+detectedIndex)  * 1481 * 25e-9 * scan.sample_period/ 2
+                    if rangeVal >= 0.75:
                         msg.ranges.pop()
                         msg.ranges.append(rangeVal)
                         break
