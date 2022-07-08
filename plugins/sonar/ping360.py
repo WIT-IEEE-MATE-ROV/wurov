@@ -52,8 +52,6 @@ class ping360:
             with open("sonar_raw.json", "w") as file:
                 json.dump(raw_data, file)
 
-            self._publisher.publish(msg)
-
             msg.ranges.append(-1)
             for detectedIntensity in data:
                 if detectedIntensity >= 200:
@@ -63,6 +61,8 @@ class ping360:
                         msg.ranges.pop()
                         msg.ranges.append(rangeVal)
                         break
+            
+        self._publisher.publish(msg)
 
         #NOTE: This is temp for debugging, stores sonar msg as json for later
         with open("sonar.json", "r") as file:
