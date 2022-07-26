@@ -4,6 +4,13 @@
         <node pkg="wurov" type="simulate_imu_data.py" name="imu_data_raw"/>
     </group>
 
+    <arg name="debug" default="false" doc="'debug:=true' will publish /imu/data_raw and /imu/mag from the actual IMU"/>
+    <group if="$(eval arg('debug') == true)">
+        <node name="imu_data_raw" pkg="wurov" type="imu_data_fxas21002c_fxos8700.py">
+            <rosparam command="load" file="$(find wurov)/config/imu_node.yaml"/>
+        </node>
+    </group>
+
     <node name="imu_filter_madgwick" pkg="imu_filter_madgwick" type="imu_filter_node" >
         <rosparam command="load" file="$(find wurov)/config/imu_filter_madgwick.yaml" />
     </node>
