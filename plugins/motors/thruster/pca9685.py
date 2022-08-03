@@ -23,6 +23,7 @@ import rospy
 import argparse
 import time
 from wurov.msg import thruster_sensor, thrustermove, arbitrary_pca_commands
+from std_msgs.msg import Bool
 from threading import Thread
 from board import SCL, SDA
 import busio
@@ -130,6 +131,10 @@ def init_thrusters(init_sequence):
             rospy.logerr(
                 "Thruster initialization failed: Attempting " + thruster + " on " + str(thruster_dictionary[thruster]))
             rospy.logerr("Error cause: " + str(e))
+    try: #init light 
+        pca.channels[10].duty_cycle = MIN_PCA_INT_VAL
+    except Exception as e:
+        print("Failed to set pwm on channel 10 (Light)")
 
     rospy.loginfo("Initialized thrusters!")
     initPub = rospy.Publisher("thruster_init", Bool, queue_size=10,  latch=True)
@@ -190,6 +195,13 @@ def move_callback(data):
                            str(thruster_values[thruster]) + ") on " +
                            str(thruster_dictionary[thruster]))
             rospy.logdebug("Error cause: " + str(e))
+
+
+def light_callback(data):
+    if data.data == False:
+        pca.channels[10].duty_cycle = MIN_PCA_INT_VAL
+    else:
+        pca.channels[10].duty_cycle = MAX_PCA_INT_VAL
 
 
 def sensor_callback(data):
@@ -323,6 +335,7 @@ def listener(arguments):
     rospy.Subscriber('thruster_commands', thrustermove, move_callback)
     rospy.Subscriber('thruster_sensors', thruster_sensor, sensor_callback)
     rospy.Subscriber('arbitrary_pca_commands', arbitrary_pca_commands, arbitrary_pca_callback)
+    rospy.Subscriber('light_control', Bool, light_callback)
 
     if pca is None:
         # Defaulting to a simulation mode (like we do here) is a good default to allow the usage of only one system.

@@ -4,7 +4,7 @@
         <rosparam file="$(find wurov)/config/controller.yaml" />
     </node>
     
-    <node name="control_loop" pkg="wurov" type="pid.py" args="--dynamic_reconfig True"/>
+    <node name="control_loop" pkg="wurov" type="pid_controller.py" args="--dynamic_reconfig True"/>
 
     <include file="$(find wurov)/launch/imu_filter_madgwick.launch" />
 

@@ -26,6 +26,7 @@ import sys
 import argparse
 import socket
 import os
+from std_msgs.msg import Bool
 
 from wurov.msg import surface_command, io_request
 from geometry_msgs.msg import Accel
@@ -35,6 +36,8 @@ class joystick_sender:
         rospy.init_node('joystick_sender_'+socket.gethostname(), anonymous=False) 
 
         self.publisher = rospy.Publisher('surface_command', surface_command, queue_size=3)
+        self.light_publisher = rospy.Publisher('light_control', Bool, queue_size=3)
+
 
         parser = argparse.ArgumentParser("Find a plugged in joystick and send it over /surface_command.")
         parser.add_argument('--config_name', type=str, help='Set the name of the file we should use as a config (from '
@@ -82,8 +85,8 @@ class joystick_sender:
             lastmsg = surface_command()
 
             pygame.event.get()
-            horizontal_axis = self.joystick.get_axis(self.controllerConfig["translationX_axis"])  # Horizontal: -1 is full left, 1 is full right
-            vertical_axis = self.joystick.get_axis(self.controllerConfig["translationY_axis"])  # Vertical: -1 is full forward, 1 is full back
+            horizontal_axis = self.joystick.get_axis(self.controllerConfig["translationX_axis"])   # Vertical: -1 is full forward, 1 is full back 
+            vertical_axis = self.joystick.get_axis(self.controllerConfig["translationY_axis"])  # Horizontal: -1 is full left, 1 is full right
             twist_axis = self.joystick.get_axis(self.controllerConfig["translationZ_axis"])  # Twist: -1 is full counter-clockwise, 1 is clockwise
             
             if self.controllerConfig["depth_axis"]["inputCount"] == 1:
@@ -104,10 +107,10 @@ class joystick_sender:
 
             self.msg = surface_command()
             self.msg .header.stamp = rospy.Time.now()
-            self.msg.desired_trajectory.linear.x = -1 * horizontal_axis
-            self.msg.desired_trajectory.linear.y = vertical_axis  
+            self.msg.desired_trajectory.linear.x = -1 * vertical_axis
+            self.msg.desired_trajectory.linear.y = horizontal_axis
             self.msg.desired_trajectory.linear.z = depth_axis # Flipped: forward is negative, that's dumb
-            self.msg.desired_trajectory.angular.z = -1 * twist_axis
+            self.msg.desired_trajectory.angular.z = twist_axis
             
             msg = self.handle_peripherals(self.joystick, self.msg)
             if self.different_msg(lastmsg, msg):
@@ -209,6 +212,12 @@ class joystick_sender:
 
         if joystick.get_button(self.controllerConfig["safetyButton"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
             msg.desired_trajectory = Accel()
+
+        if joystick.get_button(self.controllerConfig["lightOn"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
+            self.light_publisher.publish(True)
+
+        if joystick.get_button(self.controllerConfig["lightOff"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
+            self.light_publisher.publish(False)
 
         if not joystick.get_button(self.controllerConfig["boostMode"]):  # 'Boost mode': If this button is pressed, multiply trajectory by 2
             # We implement this by always cutting by 2, and then when the button is pressed, not cutting in half.
