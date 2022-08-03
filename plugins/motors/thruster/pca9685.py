@@ -131,10 +131,6 @@ def init_thrusters(init_sequence):
             rospy.logerr(
                 "Thruster initialization failed: Attempting " + thruster + " on " + str(thruster_dictionary[thruster]))
             rospy.logerr("Error cause: " + str(e))
-    try: #init light 
-        pca.channels[10].duty_cycle = MIN_PCA_INT_VAL
-    except Exception as e:
-        print("Failed to set pwm on channel 10 (Light)")
 
     rospy.loginfo("Initialized thrusters!")
     initPub = rospy.Publisher("thruster_init", Bool, queue_size=10,  latch=True)
