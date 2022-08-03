@@ -1,7 +1,7 @@
 Controllers:
   Xbox:
-    lightOn: 5
-    lightOff: 4
+    lightOn: 4
+    lightOff: 5
     killThrusters: 6
     unkillThrusters: 7
     safetyButton: 0

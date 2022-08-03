@@ -11,6 +11,7 @@ class pid:
     def __init__(self):  
         rospy.init_node('pid', anonymous=True)
 
+        rospy.wait_for_message("/thruster_init", Bool) #Do not start until init verification is recieved
 
         parser = argparse.ArgumentParser("Dynamic Reconfig")
         parser.add_argument('--dynamic_reconfig', type=bool, help='set to true if dynamic reconfig should be enabled')
