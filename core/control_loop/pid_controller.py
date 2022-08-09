@@ -63,15 +63,15 @@ class pid:
 
         #add step
         self.yawPID.update(self.currentYaw)
-        self.pitchPID.update(self.currentYaw)
-        self.xAcelPID.update(self.currentYaw)
-        self.yAcelPID.update(self.currentYaw)
-        self.zAcelPID.update(self.currentYaw)
+        self.pitchPID.update(self.currentPitch)
+        self.xAcelPID.update(self.currentAccel_x)
+        self.yAcelPID.update(self.currentAccel_y)
+        self.zAcelPID.update(self.currentAccel_z)
 
-        msg.angular.y = self.yawPID.output
-        msg.angular.z = self.pitchPID.output
-        msg.linear.x = self.xAcelPID.output 
+        msg.angular.z = self.yawPID.output
+        msg.angular.y = self.pitchPID.output
         msg.linear.y = self.yAcelPID.output 
+        msg.linear.x = self.xAcelPID.output 
         msg.linear.z = self.zAcelPID.output 
 
         self._publisher.publish(msg)
@@ -83,9 +83,9 @@ class pid:
         self.ddynrec.add_variable("yawI", "yaw integral scale", 0.0, -1.0, 100.0)
         self.ddynrec.add_variable("yawD", "yaw derrivative scale", 0.0, -1.0, 100.0)
 
-        self.ddynrec.add_variable("rollP", "rollP proportion scale", 0.0, -1.0, 100.0)
-        self.ddynrec.add_variable("rollI", "rollP integral scale", 0.0, -1.0, 100.0)
-        self.ddynrec.add_variable("rollD", "rollP derrivative scale", 0.0, -1.0, 100.0)
+        self.ddynrec.add_variable("pitchP", "pitchP proportion scale", 0.0, -1.0, 100.0)
+        self.ddynrec.add_variable("pitchI", "pitchI integral scale", 0.0, -1.0, 100.0)
+        self.ddynrec.add_variable("pitchD", "pitchD derrivative scale", 0.0, -1.0, 100.0)
 
         self.ddynrec.add_variable("xAcelP", "xAcelP proportion scale", 0.0, -1.0, 1000.0)
         self.ddynrec.add_variable("xAcelI", "xAcelP integral scale", 0.0, -1.0, 1000.0)
@@ -99,29 +99,31 @@ class pid:
         self.ddynrec.add_variable("zAcelI", "zAcelP integral scale", 0.0, -1.0, 100.0)
         self.ddynrec.add_variable("zAcelD", "zAcelP derrivative scale", 0.0, -1.0, 100.0)
 
-        self.ddynrec.add_variable("upperLimit", "pid limit", 0.5, -1.0, 5.0)
+        self.ddynrec.add_variable("upperLimit", "pid limit", 0.5, -1.0, 1.0)
+        self.ddynrec.add_variable("lowerLimit", "pid limit", -0.5, -1.0, 1.0)
+
 
         self.ddynrec.start(self.dyn_rec_callback)
 
     def dyn_rec_callback(self, config, data):
 
         self.yawPID = PID(config["yawP"], config["yawI"], config["yawD"])
-        self.pitchPID = PID(config["rollP"], config["rollI"], config["rollD"])
+        self.pitchPID = PID(config["pitchP"], config["pitchI"], config["pitchD"])
         self.xAcelPID = PID(config["xAcelP"], config["xAcelI"], config["xAcelD"])
         self.yAcelPID = PID(config["yAcelP"], config["yAcelI"], config["yAcelD"])
         self.zAcelPID = PID(config["zAcelP"], config["zAcelI"], config["zAcelD"])
 
-        self.yawPID.setSampleTime(0.1)
-        self.pitchPID.setSampleTime(0.1)
-        self.xAcelPID.setSampleTime(0.1)
-        self.yAcelPID.setSampleTime(0.1)
-        self.zAcelPID.setSampleTime(0.1)
+        self.yawPID.setSampleTime(0.04)
+        self.pitchPID.setSampleTime(0.04)
+        self.xAcelPID.setSampleTime(0.04)
+        self.yAcelPID.setSampleTime(0.04)
+        self.zAcelPID.setSampleTime(0.04)
 
-        self.yawPID.setOutputLimits(config["upperLimit"])
-        self.pitchPID.setOutputLimits(config["upperLimit"])
-        self.xAcelPID.setOutputLimits(config["upperLimit"])
-        self.yAcelPID.setOutputLimits(config["upperLimit"])
-        self.zAcelPID.setOutputLimits(config["upperLimit"])
+        self.yawPID.setOutputLimits(config["upperLimit"], config['lowerLimit'])
+        self.pitchPID.setOutputLimits(config["upperLimit"], config['lowerLimit'])
+        self.xAcelPID.setOutputLimits(config["upperLimit"], config['lowerLimit'])
+        self.yAcelPID.setOutputLimits(config["upperLimit"], config['lowerLimit'])
+        self.zAcelPID.setOutputLimits(config["upperLimit"], config['lowerLimit'])
 
         return config
 

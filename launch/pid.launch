@@ -1,3 +1,9 @@
 <launch>
-    <node name="pid" pkg="wurov" type="pid.py" args="--dynamic_reconfig True"/>
+    <node name="joystick_sender" pkg="wurov" type="joystick_sender.py" args="--config_name Xbox">
+        <rosparam file="$(find wurov)/config/controller.yaml" />
+    </node>
+    
+    <node name="control_loop" pkg="wurov" type="pid_controller.py" args="--dynamic_reconfig True"/>
+    <node name="pid_sim" pkg="wurov" type="pid_sim.py"/>
+
 </launch>

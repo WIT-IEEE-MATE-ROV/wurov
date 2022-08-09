@@ -31,12 +31,13 @@ Publisher = rospy.Publisher('thruster_commands', thrustermove, queue_size=3)
 
 # These arrays are in the format:
 # [top front, top right, top back, top left], [front left, front right, back right, back left]
+
 const_array_x = [
-    [0.0, 0.0, 0.0, 0.0], [1.0, -1.0, -1.0, 1.0]  # x
+    [0.0, 0.0, 0.0, 0.0], [1.0, 1.0, -1.0, -1.0]  # y
 ]
 
 const_array_y = [
-    [0.0, 0.0, 0.0, 0.0], [1.0, 1.0, -1.0, -1.0]  # y
+    [0.0, 0.0, 0.0, 0.0], [1.0, -1.0, -1.0, 1.0]  # x
 ]
 
 const_array_z = [

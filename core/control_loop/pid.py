@@ -35,13 +35,12 @@ class PID:
     """
 
     def __init__(self, P=0.2, I=0.0, D=0.0, current_time=None):
-
         self.Kp = P
         self.Ki = I
         self.Kd = D
 
         self._max_output = None
-
+        self._min_output = None
         self.sample_time = 0.00
         self.current_time = current_time if current_time is not None else time.time()
         self.last_time = self.current_time
@@ -50,11 +49,12 @@ class PID:
 
     def limit(self, value):  # this is based off of https://github.com/m-lundberg/simple-pid/blob/e65cda8fc83453d779be5dfb919b4089a5b148df/simple_pid/pid.py#L5
         """Makes sure pid does not exceed bounds"""
-        upper = self._max_output
         if value is None:
             return None
-        elif (upper is not None) and (value > upper):
-            return upper
+        elif (self._max_output is not None) and (value > self._max_output):
+            return self._max_output
+        elif (self._min_output is not None) and (value < self._min_output):
+            return self._min_output
         return value
 
     def clear(self):
@@ -140,5 +140,6 @@ class PID:
         """
         self.sample_time = sample_time
 
-    def setOutputLimits(self, upper):
+    def setOutputLimits(self, upper, lower):
         self._max_output = upper
+        self._min_output = lower
