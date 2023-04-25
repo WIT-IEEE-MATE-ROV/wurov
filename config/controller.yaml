@@ -18,9 +18,9 @@ Controllers:
     unkillThrusters: 7
     safetyButton: 0
     boostMode: 1
-    translationX_axis: 0
-    translationY_axis: 1
+    translationX_axis: 1
+    translationY_axis: 0
     translationZ_axis: 2
     depth_axis:
       inputCount: 1
-      inputOne_Axis: 2
+      inputOne_Axis: 3
