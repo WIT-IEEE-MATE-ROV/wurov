@@ -1,5 +1,7 @@
 Controllers:
   Xbox:
+    grip: 2
+    grip_rotate: 3
     lightOn: 4
     lightOff: 5
     killThrusters: 6
@@ -14,6 +16,10 @@ Controllers:
       inputOne_Axis: 2
       inputTwo_Axis: 5
   Logitech:
+    grip: 10
+    grip_rotate: 11
+    lightOn: 8
+    lightOff: 9
     killThrusters: 6
     unkillThrusters: 7
     safetyButton: 0

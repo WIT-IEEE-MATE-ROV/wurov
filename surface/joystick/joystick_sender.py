@@ -37,7 +37,8 @@ class joystick_sender:
 
         self.publisher = rospy.Publisher('surface_command', surface_command, queue_size=3)
         self.light_publisher = rospy.Publisher('light_control', Bool, queue_size=3)
-
+        self.grip_publisher = rospy.Publisher('grip_close', Bool, queue_size=3)
+        self.rotate_publisher = rospy.Publisher('grip_rotate', Bool, queue_size=3)
 
         parser = argparse.ArgumentParser("Find a plugged in joystick and send it over /surface_command.")
         parser.add_argument('--config_name', type=str, help='Set the name of the file we should use as a config (from '
@@ -219,6 +220,12 @@ class joystick_sender:
 
         if joystick.get_button(self.controllerConfig["lightOff"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
             self.light_publisher.publish(False)
+
+        if joystick.get_button(self.controllerConfig["grip"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
+            self.grip_publisher.publish(True)
+        
+        if joystick.get_button(self.controllerConfig["grip_rotate"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
+            self.rotate_publisher.publish(True)
 
         if not joystick.get_button(self.controllerConfig["boostMode"]):  # 'Boost mode': If this button is pressed, multiply trajectory by 2
             # We implement this by always cutting by 2, and then when the button is pressed, not cutting in half.

@@ -199,14 +199,25 @@ def light_callback(data):
     else:
         pca.channels[10].duty_cycle = MAX_PCA_INT_VAL
 
+test = False
+def grip_callback(data):
+    if data.data == True:
+        global test 
+        test = not test
+        if test == True:
+            pca.channels[7].duty_cycle = (MIN_PCA_INT_VAL-MAX_PCA_INT_VAL)/2
+        else:
+            pca.channels[7].duty_cycle = MAX_PCA_INT_VAL
 
-def sensor_callback(data):
-    """
-    If there are sensors on your thrusters, here's where you can deal with that.
-    """
-    if data.estop:
-        rospy.logerr("estop triggered on " + data.thruster)
-        kill_thruster(data.thruster)
+test1 = False
+def rotate_collback(data):
+    if data.data == True:
+        global test1 
+        test1 = not test1
+        if test1 == True:
+            pca.channels[9].duty_cycle = (MIN_PCA_INT_VAL-MAX_PCA_INT_VAL)/2
+        else:
+            pca.channels[9].duty_cycle = MAX_PCA_INT_VAL
 
 
 def persistent_pca(channel, pwm):
@@ -332,6 +343,8 @@ def listener(arguments):
     rospy.Subscriber('thruster_sensors', thruster_sensor, sensor_callback)
     rospy.Subscriber('arbitrary_pca_commands', arbitrary_pca_commands, arbitrary_pca_callback)
     rospy.Subscriber('light_control', Bool, light_callback)
+    rospy.Subscriber('grip_close', Bool, grip_callback)
+    rospy.Subscriber('grip_rotate', Bool, rotate_collback)
 
     if pca is None:
         # Defaulting to a simulation mode (like we do here) is a good default to allow the usage of only one system.
