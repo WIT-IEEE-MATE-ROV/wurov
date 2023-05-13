@@ -351,8 +351,8 @@ def listener(arguments):
     rospy.Subscriber('thruster_sensors', thruster_sensor, sensor_callback)
     rospy.Subscriber('arbitrary_pca_commands', arbitrary_pca_commands, arbitrary_pca_callback)
     rospy.Subscriber('light_control', Bool, light_callback)
-    rospy.Subscriber('grip_close', Bool, grip_callback)
-    rospy.Subscriber('grip_rotate', Bool, rotate_collback)
+    # rospy.Subscriber('grip_close', Bool, grip_callback)
+    # rospy.Subscriber('grip_rotate', Bool, rotate_collback)
 
     if pca is None:
         # Defaulting to a simulation mode (like we do here) is a good default to allow the usage of only one system.
