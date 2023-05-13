@@ -2,7 +2,7 @@
     <node name="imu_data_raw" pkg="wurov" type="imu_data_fxas21002c_fxos8700.py">
         <rosparam command="load" file="$(find wurov)/config/imu_node.yaml"/>
     </node>
-    <node name="pca9685" pkg="wurov" type="pca9685.py" args="10750 6210 --frequency 390 --top_front 5 --top_back 6 --front_right 1 --back_right 2 --back_left 3 --front_left 4" />
+    <node name="pca9685" pkg="wurov" type="pca9685.py" args="46650 27000--frequency 390 --top_front 5 --top_back 6 --front_right 1 --back_right 2 --back_left 3 --front_left 4" />
 
     <node name="bar30" pkg="wurov" type="bar30.py">
         <rosparam>
