@@ -203,21 +203,23 @@ test = False
 def grip_callback(data):
     if data.data == True:
         global test
-        test = not test
         if test == True:
             pca.channels[7].duty_cycle = MAX_PCA_INT_VAL
+            test = not test
         else:
             pca.channels[7].duty_cycle = MIN_PCA_INT_VAL
+            test = not test
 
 test1 = False
 def rotate_callback(data):
     if data.data == True:
-        global test1
-        test1 = not test1
+        global test1 
         if test1 == True:
             pca.channels[9].duty_cycle = MAX_PCA_INT_VAL
+            test1 = not test1
         else:
             pca.channels[9].duty_cycle = MIN_PCA_INT_VAL
+            test1 = not test1
 
 
 def sensor_callback(data):
