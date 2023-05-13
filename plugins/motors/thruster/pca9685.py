@@ -207,25 +207,25 @@ def sensor_callback(data):
         rospy.logerr("estop triggered on " + data.thruster)
         kill_thruster(data.thruster)
 
-test = False
-def grip_callback(data):
-    if data.data == True:
-        global test 
-        test = not test
-        if test == True:
-            pca.channels[7].duty_cycle = (MAX_PCA_INT_VAL-MIN_PCA_INT_VAL)/2
-        else:
-            pca.channels[7].duty_cycle = MAX_PCA_INT_VAL
+# test = False
+# def grip_callback(data):
+#     if data.data == True:
+#         global test 
+#         test = not test
+#         if test == True:
+#             pca.channels[7].duty_cycle = (MAX_PCA_INT_VAL-MIN_PCA_INT_VAL)/2
+#         else:
+#             pca.channels[7].duty_cycle = MAX_PCA_INT_VAL
 
-test1 = False
-def rotate_collback(data):
-    if data.data == True:
-        global test1 
-        test1 = not test1
-        if test1 == True:
-            pca.channels[9].duty_cycle = (MAX_PCA_INT_VAL-MIN_PCA_INT_VAL)/2
-        else:
-            pca.channels[9].duty_cycle = MAX_PCA_INT_VAL
+# test1 = False
+# def rotate_collback(data):
+#     if data.data == True:
+#         global test1 
+#         test1 = not test1
+#         if test1 == True:
+#             pca.channels[9].duty_cycle = (MAX_PCA_INT_VAL-MIN_PCA_INT_VAL)/2
+#         else:
+#             pca.channels[9].duty_cycle = MAX_PCA_INT_VAL
 
 
 def persistent_pca(channel, pwm):
