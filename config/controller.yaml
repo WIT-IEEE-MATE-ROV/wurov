@@ -14,7 +14,7 @@ Controllers:
     depth_axis:
       inputCount: 2
       inputOne_Axis: 2
-      inputTwo_Axis: 5
+      inputTwo_Axis: 3 #5
   Logitech:
     grip: 10
     grip_rotate: 11
@@ -30,3 +30,6 @@ Controllers:
     depth_axis:
       inputCount: 1
       inputOne_Axis: 3
+  Xbox_test:
+    grip: 0
+    grip_rotate: 1

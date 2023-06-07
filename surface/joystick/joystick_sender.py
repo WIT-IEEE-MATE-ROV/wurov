@@ -26,6 +26,7 @@ import sys
 import argparse
 import socket
 import os
+import time
 from std_msgs.msg import Bool
 
 from wurov.msg import surface_command, io_request
@@ -223,9 +224,11 @@ class joystick_sender:
 
         if joystick.get_button(self.controllerConfig["grip"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
             self.grip_publisher.publish(True)
+            time.sleep(0.5)
         
         if joystick.get_button(self.controllerConfig["grip_rotate"]):  # Safety trigger: Do not Send trajectory data if this trigger is held.
             self.rotate_publisher.publish(True)
+            time.sleep(0.5)
 
         if not joystick.get_button(self.controllerConfig["boostMode"]):  # 'Boost mode': If this button is pressed, multiply trajectory by 2
             # We implement this by always cutting by 2, and then when the button is pressed, not cutting in half.
