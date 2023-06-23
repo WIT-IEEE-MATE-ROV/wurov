@@ -110,7 +110,7 @@ class joystick_sender:
 
             self.msg = surface_command()
             self.msg .header.stamp = rospy.Time.now()
-            self.msg.desired_trajectory.linear.x = -1 * vertical_axis
+            self.msg.desired_trajectory.linear.x = 1 * vertical_axis
             self.msg.desired_trajectory.linear.y = horizontal_axis
             self.msg.desired_trajectory.linear.z = depth_axis # Flipped: forward is negative, that's dumb
             self.msg.desired_trajectory.angular.z = -1* twist_axis
